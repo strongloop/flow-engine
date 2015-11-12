@@ -221,7 +221,13 @@ Flow.prototype._prepareNextTask = function () {
             var taskCfg = task[taskType];
 
             //initiate the task
-            var taskHandler = require(taskType)(taskCfg);
+            var taskModule;
+            try {
+               taskModule = require('./lib/task/' + taskType);
+            } catch (err) {
+               taskModule = require(taskType);
+            }
+            var taskHandler = taskModule(taskCfg);
             //execute the task now
             taskHandler(this._req, this._resp, next);
         }
