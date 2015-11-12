@@ -20,7 +20,7 @@ execute:
 
   # REST Proxy
   - invoke-api:
-      url: "https://$(target-host)/services/climbing/$(request.path)"
+      target-url: "https://$(target-host)/services/climbing/$(request.path)"
       verb: $(request.verb)   # Takes the verb from the context if not set here.
       timeout: $(timeout)     # Seconds -- default timeout is 2 min.
       username: $(username)   # Supersedes (and rewrites) basic auth header if present.
