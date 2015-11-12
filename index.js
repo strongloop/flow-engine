@@ -92,6 +92,7 @@ function Flow (config) {
     this._config = config;
     this._main = config.execute
     this._flowStack = [];
+    this._flowID = 0;
 
     //to keep the flow error
     this._error = undefined;
@@ -139,7 +140,7 @@ Flow.prototype._evaluateState = function() {
         }
 
         logger.info("Executing the main");
-        this._flowStack.push({"taskIndex": 0, "flow": this._main});
+        this._flowStack.push({"id": this._flowID++, "taskIndex": 0, "flow": this._main});
         this._state = kRunningFlow;
 
         setImmediate(function() {
@@ -214,8 +215,10 @@ Flow.prototype._prepareNextTask = function () {
     var task = current.flow[current.taskIndex];
 
     if ( task ) {
-        logger.info ("loading task #" + current.taskIndex + ": ", JSON.stringify(task));
-        var next = taskNext.bind(this, task)
+        logger.info ("loading task #" + current.id + "-" + current.taskIndex + ": ", JSON.stringify(task));
+        var next = taskNext.bind(this, task);
+        //save the next for error
+        current['currTaskNext'] = next;
         try {
             var taskType = Object.getOwnPropertyNames(task)[0];
             var taskCfg = task[taskType];
@@ -229,10 +232,10 @@ Flow.prototype._prepareNextTask = function () {
             }
             var taskHandler = taskModule(taskCfg);
             //execute the task now
-            taskHandler(this._req, this._resp, next);
+            taskHandler(this._req, this._resp, next, this._invokeFlow.bind(this));
         }
         catch ( e ) {
-            logger.error("Exception with loading task #" + current.taskIndex + "\n" + e);
+            logger.error("Exception with loading task #" + current.id + "-" + current.taskIndex + "\n" + e);
             next(e);
         }
     }
@@ -253,11 +256,11 @@ Flow.prototype._prepareNextTask = function () {
                 var subflow = this._flowStack.pop();
                 var caller = this._flowStack[this._flowStack.length - 1];
 
-                logger.info("The current subflow is done. Resume with the caller flow (index=" + caller.taskIndex + ").");
+                logger.info("The current subflow is done. Resume with the caller flow (id = " + caller.id + ", index=" + caller.taskIndex + ").");
 
                 //bind the task to 'this' of its resume callback, and then call
                 var task = caller.flow[caller.taskIndex];
-                subflow.resume.bind(task)();
+                subflow.resume();
             }
             else {
                 //should not reach here?!
@@ -271,9 +274,14 @@ Flow.prototype._invokeFlow = function(subflow, callback) {
     assert(subflow && (callback instanceof Function), "Invalid invocation of a subflow.");
 
     var current = this._flowStack[this._flowStack.length - 1];
+    var task = current.flow[current.taskIndex];
     var taskType = Object.getOwnPropertyNames(task)[0];
-    logger.info("Invoking a subflow for the '" + taskType + "' task");
-    this._flowStack.push({"taskIndex": 0, "flow": subflow, "resume": callback});
+
+    var newFlowID = this._flowID++;
+    logger.info("A subflow (id=" + newFlowID + ") is invoked by the '" + taskType + "' task");
+
+    //push the subflow onto the stack
+    this._flowStack.push({"id": newFlowID, "taskIndex": 0, "flow": subflow, "resume": callback});
 
     var _this = this;
     setImmediate(function() {
