@@ -1,0 +1,27 @@
+{
+  "name": "fetest",
+  "version": "1.0.0",
+  "description": "testing for flow engine",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": null
+  },
+  "keywords": [
+    "test"
+  ],
+  "author": "IBM",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=4.0.0"
+  }
+}
