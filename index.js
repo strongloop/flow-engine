@@ -4,6 +4,7 @@ const util       = require("util");
 const yaml       = require("yamljs");
 const assert     = require("assert");
 const winston    = require("winston");
+const context    = require('./lib/context');
 
 //TODO: create a logger for each flow instance
 const logger     = new (winston.Logger)({
@@ -100,6 +101,7 @@ function Flow (config) {
     this._req = undefined;
     this._resp = undefined;
     this._next = undefined;
+    this._context = undefined;
 }
 util.inherits(Flow, EE);
 
@@ -111,14 +113,29 @@ Flow.prototype.prepare = function ( req, resp, next ) {
     this._req = req;
     this._resp = resp;
     this._next = next;
+    this._context = context.getCurrent() || createContext(req, resp);
+}
+
+/**
+ * create a new Context
+ */
+function createContext ( req, resp ) {
+    var ns = context.create();
+    ns.bindEmitter(req);
+    ns.bindEmitter(resp);
+    return ns;
 }
 
 /**
  * start to excute the flow
  */
 Flow.prototype.run = function () {
+    var _this = this;
     logger.debug("Running the flow");
-    this._evaluateState();
+    //start to execute the flow under the context
+    this._context.run ( function () {
+        _this._evaluateState();
+    });
 }
 
 /**
@@ -143,7 +160,7 @@ Flow.prototype._evaluateState = function() {
         this._flowStack.push({"id": this._flowID++, "taskIndex": 0, "flow": this._main});
         this._state = kRunningFlow;
 
-        setImmediate(function() {
+        process.nextTick(function() {
             _this._prepareNextTask();
         });
         break;
@@ -156,7 +173,7 @@ Flow.prototype._evaluateState = function() {
         var current = this._flowStack[this._flowStack.length - 1];
         current.taskIndex++;
 
-        setImmediate(function() {
+        process.nextTick(function() {
             _this._prepareNextTask();
         });
         break;
@@ -169,7 +186,7 @@ Flow.prototype._evaluateState = function() {
 
         //We are done here
         this._state = kDone;
-        setImmediate(function() {
+        process.nextTick(function() {
             _this._evaluateState();
         });
         break;
@@ -178,7 +195,7 @@ Flow.prototype._evaluateState = function() {
         logger.info("The flow is successfully executed.");
 
         //Every task in the flow is successfully executed. Call the next().
-        setImmediate(function() {
+        process.nextTick(function() {
             _this._next();
         });
         break;
@@ -190,7 +207,7 @@ Flow.prototype._evaluateState = function() {
 
         //Some task fails and the error handler cannot deal with it. Call the
         //next() with the error.
-        setImmediate(function() {
+        process.nextTick(function() {
             _this._next(_this._error);
         });
         break;
@@ -198,7 +215,7 @@ Flow.prototype._evaluateState = function() {
         logger.error("Invalid state in Flow. Aborting the flow now.");
         var error = new Error("Invalid state in Flow Engine");
 
-        setImmediate(function() {
+        process.nextTick(function() {
             _this._next(error);
         });
         break;
@@ -284,7 +301,7 @@ Flow.prototype._invokeFlow = function(subflow, callback) {
     this._flowStack.push({"id": newFlowID, "taskIndex": 0, "flow": subflow, "resume": callback});
 
     var _this = this;
-    setImmediate(function() {
+    process.nextTick(function() {
         _this._prepareNextTask();
     });
 }
@@ -326,3 +343,4 @@ function taskNext(task, error) {
 }
 
 module.exports.Flow = Flow;
+module.exports.Context = context;
