@@ -43,6 +43,9 @@ module.exports = function(options) {
         error = e;
     }
 
+    // the callback function for resolving task's parameter values
+    var paramResolver = options.paramResolver;
+
     //return the middleware function
     return function (req, res, next) {
         if ( error ) {
@@ -55,7 +58,7 @@ module.exports = function(options) {
             logger.info("Invoke the Flow middleware");
 
             //start to run the flow engine
-            var flow = new Flow(config);
+            var flow = new Flow(config, paramResolver);
             flow.prepare(req, res, next);
             flow.run();
         }
