@@ -1,0 +1,31 @@
+assembly: 1.0.0
+## schema: https://gitlab-apim.hursley.ibm.com/api-management/apim/blob/master/node/v2/definitions/schemas/swagger-schema-v2.0-ibm.json
+## source from: https://sjsldev249.dev.ciondemand.com/v1/catalogs/56463366e4b0fd1162b7d847/apis
+
+execute:
+  - operation-switch:
+      case:
+        - operations:
+          - verb: post
+            path: /routes/update
+          execute:
+            - activity-log:
+                content: activity
+                error-content: payload
+  - operation-switch:
+      case:
+        - operations:
+          - verb: put
+            path: /routes/{id}
+          execute:
+            - activity-log:
+                content: activity
+                error-content: payload
+        - operations:
+          - verb: get
+            path: /routes/{id}
+          execute:
+            - activity-log:
+                content: activity
+                error-content: payload
+
