@@ -2,10 +2,9 @@
 var createFlow = require('../index.js');
 const express = require('express');
 
-
 //
 // The following function simulates the integration with APIm
-// 
+//
 function initAPImContext(req, resp, next) {
     // Two options to create an APIm Context
     // Option1: use 'continuation-local-storage' module, ex:
@@ -15,24 +14,26 @@ function initAPImContext(req, resp, next) {
     // Option2: use flow-engine's context API
     //   the flow-engine's context API uses 'continuation-local-storage'
     //   module as well
-    
+
     var contextFactory = require('../index').Context;
     var apimCtx = contextFactory.getCurrent();
     if (!apimCtx) {
-	apimCtx = contextFactory.create();
-	apimCtx.bindEmitter(req);
-	apimCtx.bindEmitter(resp);
+        apimCtx = contextFactory.create();
+        apimCtx.bindEmitter(req);
+        apimCtx.bindEmitter(resp);
     }
     apimCtx.run(function() {
-	    apimCtx.set("request.verb", req.method);
-	    apimCtx.set("request.path", req.path);
-	    apimCtx.set("request.content-type", req.get('content-type').toLowerCase());
-	    apimCtx.set("target-host", "localhost:8888");
-	    apimCtx.set("timeout", 10);
-	    apimCtx.set("username", "test");
-	    apimCtx.set("password", "test");
-	    
-	    next();
+        apimCtx.set("request.verb", req.method);
+        apimCtx.set("request.path", req.path);
+        apimCtx.set("request.content-type", req.get('content-type').toLowerCase());
+        apimCtx.set("target-host", "localhost:8888");
+        apimCtx.set("timeout", 10);
+        apimCtx.set("username", "test");
+        apimCtx.set("password", "test");
+
+        //The operation.id should be setup by some previous middleware
+        apimCtx.set("operation.id", "updateRoute");
+        next();
     });
 }
 
