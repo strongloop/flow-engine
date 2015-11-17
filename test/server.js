@@ -36,19 +36,7 @@ function initAPImContext(req, resp, next) {
     });
 }
 
-//
-// APIm's specific parameter resolver callback
-//
-let apimParamResolver = function(context, name, value) {
-    // let apimCtx = cls.getNamespace('apim');
-    let apimCtx = require('../index').Context.getCurrent();
-    
-    return value.replace(/\$\(([^)]+)\)/gm, function(m, g1) {
-        return apimCtx.get(g1);
-    });
-};
-
-var flow = createFlow({config: "flow.yaml", paramResolver: apimParamResolver});
+var flow = createFlow({flow: "flow.yaml", paramResolver: './apim-param-resolver.js', baseDir: __dirname});
 
 var app = express();
 app.post('/*', [ initAPImContext, flow ]);
@@ -56,7 +44,6 @@ app.post('/*', [ initAPImContext, flow ]);
 var server = app.listen(7777, function() {
     console.log("[server.js] started");
 });
-
 
 /** an echo/loopback service **/
 var loopback = express();

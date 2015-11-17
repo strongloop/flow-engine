@@ -17,18 +17,19 @@ const logger     = new (winston.Logger)({
 module.exports = function(options) {
     var config = undefined;
     var error = undefined;
+    var paramResolver = undefined;
     try {
         //TODO: this will be replaced by mplane later on
         //read config file here
-        config = yaml.load(options.config);
+        config = yaml.load(options.flow);
 
         //watch the config file
-        fs.watchFile(options.config, function (curr, prev) {
+        fs.watchFile(options.flow, function (curr, prev) {
             //if file changes, reload it
             if ( curr.mtime > prev.mtime ) {
                 logger.info("The config file is changed. Reload the file for the following requests.");
                 try {
-                    config = yaml.load(options.config);
+                    config = yaml.load(options.flow);
                     error = undefined;
                 }
                 catch (e2) {
@@ -37,14 +38,19 @@ module.exports = function(options) {
                 }
             }
         });
-    }
-    catch (e) {
+    } catch (e) {
         logger.error("Failed to load the config file: " + e);
         error = e;
     }
 
-    // the callback function for resolving task's parameter values
-    var paramResolver = options.paramResolver;
+    try{
+        // the callback function for resolving task's parameter values
+        paramResolver = require((options.baseDir ? options.baseDir : '') + '/' + options.paramResolver)();
+        error = undefined;
+    } catch (e) {
+        logger.error("Failed to load the paramResolver: " + e);
+        error = e;
+    }
 
     //return the middleware function
     return function (req, res, next) {
@@ -58,7 +64,11 @@ module.exports = function(options) {
             logger.info("Invoke the Flow middleware");
 
             //start to run the flow engine
-            var flow = new Flow(config, paramResolver);
+            var flow = new Flow(config, 
+                    { 'paramResolver': paramResolver,
+                       baseDir: options.baseDir,
+                       tasks: options.tasks
+                    });
             flow.prepare(req, res, next);
             flow.run();
         }
