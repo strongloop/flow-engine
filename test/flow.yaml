@@ -8,7 +8,7 @@ execute:
       error-content: payload
 
   - if:
-      condition: activity
+      condition: "'$(request.content-type)' === 'text/xml'"
       execute:
         - activity-log:
             content: activity01

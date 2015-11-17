@@ -26,6 +26,7 @@ function initAPImContext(req, resp, next) {
     apimCtx.run(function() {
 	    apimCtx.set("request.verb", req.method);
 	    apimCtx.set("request.path", req.path);
+	    apimCtx.set("request.content-type", req.get('content-type').toLowerCase());
 	    apimCtx.set("target-host", "localhost:8888");
 	    apimCtx.set("timeout", 10);
 	    apimCtx.set("username", "test");
