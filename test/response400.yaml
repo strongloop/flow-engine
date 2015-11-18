@@ -1,0 +1,27 @@
+assembly: 1.0.0
+
+execute:
+
+  # Analytics/Metrics Logging
+  - activity-log:
+      content: activity
+      error-content: payload
+
+  - if:
+      condition: "'$(request.content-type)' === 'text/xml'"
+      execute:
+        - activity-log:
+            content: activity01
+            error-content: payload01
+
+        - activity-log:
+            content: activity02
+            error-content: payload02
+
+  - message-mediation:
+      target: context.response
+      value: "{ status: 400, message: 'Test test 123.' }"
+
+  - response:
+      payload: context.response
+
