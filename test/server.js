@@ -16,25 +16,20 @@ function initAPImContext(req, resp, next) {
     //   module as well
 
     var contextFactory = require('../index').Context;
-    var apimCtx = contextFactory.getCurrent();
-    if (!apimCtx) {
-        apimCtx = contextFactory.create();
-        apimCtx.bindEmitter(req);
-        apimCtx.bindEmitter(resp);
-    }
-    apimCtx.run(function() {
-        apimCtx.set("request.verb", req.method);
-        apimCtx.set("request.path", req.path);
-        apimCtx.set("request.content-type", req.get('content-type').toLowerCase());
-        apimCtx.set("target-host", "localhost:8888");
-        apimCtx.set("timeout", 10);
-        apimCtx.set("username", "test");
-        apimCtx.set("password", "test");
+    var apimCtx = contextFactory.createContext('apim');
+    apimCtx.set("request.verb", req.method);
+    apimCtx.set("request.path", req.path);
+    apimCtx.set("request.content-type", req.get('content-type').toLowerCase());
+    apimCtx.set("target-host", "localhost:8888");
+    apimCtx.set("timeout", 10);
+    apimCtx.set("username", "test");
+    apimCtx.set("password", "test");
 
-        //The operation.id should be setup by some previous middleware
-        apimCtx.set("operation.id", "updateRoute");
-        next();
-    });
+    //The operation.id should be setup by some previous middleware
+    apimCtx.set("operation.id", "updateRoute");
+    req.ctx = apimCtx
+    req.ctxNS = 'apim';
+    next();
 }
 
 var flow = createFlow({flow: "flow.yaml", paramResolver: './apim-param-resolver.js', baseDir: __dirname});

@@ -1,5 +1,6 @@
 'use strict';
 const fs         = require("fs");
+const path       = require('path');
 const yaml       = require("yamljs");
 const winston    = require("winston");
 const Flow       = require('./lib/flow').Flow;
@@ -45,7 +46,9 @@ module.exports = function(options) {
 
     try{
         // the callback function for resolving task's parameter values
-        paramResolver = require((options.baseDir ? options.baseDir : '') + '/' + options.paramResolver)();
+        paramResolver = require(
+                    path.join((options.baseDir ? options.baseDir : '') , options.paramResolver)
+                )();
         error = undefined;
     } catch (e) {
         logger.error("Failed to load the paramResolver: " + e);
@@ -67,7 +70,8 @@ module.exports = function(options) {
             var flow = new Flow(config, 
                     { 'paramResolver': paramResolver,
                        baseDir: options.baseDir,
-                       tasks: options.tasks
+                       tasks: options.tasks,
+                       ctxScope: options.ctxScope ? options.ctxScope : 'default'
                     });
             flow.prepare(req, res, next);
             flow.run();
