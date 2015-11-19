@@ -32,7 +32,11 @@ function initAPImContext(req, resp, next) {
     next();
 }
 
-var flow = createFlow({flow: "flow.yaml", paramResolver: './apim-param-resolver.js', baseDir: __dirname});
+var flow = createFlow({
+        flow: "flow.yaml",
+        paramResolver: './apim-param-resolver.js',
+        tasks: {'activity-log': './myactivity-log.js'},
+        baseDir: __dirname});
 
 var app = express();
 app.post('/*', [ initAPImContext, flow ]);
