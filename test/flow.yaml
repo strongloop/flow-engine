@@ -1,27 +1,27 @@
-assembly: 1.0.0
+assembly:
+  execute:
 
-execute:
+    # Analytics/Metrics Logging
+    - activity-log:
+        content: activity
+        error-content: payload
 
-  # Analytics/Metrics Logging
-  - activity-log:
-      content: activity
-      error-content: payload
+    - if:
+        condition: "'$(request.content-type)' === 'text/xml'"
+        execute:
+          - activity-log:
+              content: activity01
+              error-content: payload01
 
-  - if:
-      condition: "'$(request.content-type)' === 'text/xml'"
-      execute:
-        - activity-log:
-            content: activity01
-            error-content: payload01
+          - activity-log:
+              content: activity02
+              error-content: payload02
 
-        - activity-log:
-            content: activity02
-            error-content: payload02
+    # REST Proxy
+    - invoke-api:
+        target-url: "http://$(target-host)/services/climbing/$(request.path)"
+        verb: $(request.verb)   # Takes the verb from the context if not set here.
+        timeout: $(timeout)     # Seconds -- default timeout is 2 min.
+        username: $(username)   # Supersedes (and rewrites) basic auth header if present.
+        password: $(password)   # Supersedes (and rewrites) basic auth header if present.
 
-  # REST Proxy
-  - invoke-api:
-      target-url: "http://$(target-host)/services/climbing/$(request.path)"
-      verb: $(request.verb)   # Takes the verb from the context if not set here.
-      timeout: $(timeout)     # Seconds -- default timeout is 2 min.
-      username: $(username)   # Supersedes (and rewrites) basic auth header if present.
-      password: $(password)   # Supersedes (and rewrites) basic auth header if present.

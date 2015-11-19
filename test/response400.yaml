@@ -1,27 +1,24 @@
-assembly: 1.0.0
+assembly:
+  execute:
+    - activity-log:
+        content: activity
+        error-content: payload
 
-execute:
+    - if:
+        condition: "'$(request.content-type)' === 'text/xml'"
+        execute:
+          - activity-log:
+              content: activity01
+              error-content: payload01
 
-  # Analytics/Metrics Logging
-  - activity-log:
-      content: activity
-      error-content: payload
+          - activity-log:
+              content: activity02
+              error-content: payload02
 
-  - if:
-      condition: "'$(request.content-type)' === 'text/xml'"
-      execute:
-        - activity-log:
-            content: activity01
-            error-content: payload01
+    - message-mediation:
+        target: context.response
+        value: "{ status: 400, message: 'Test test 123.' }"
 
-        - activity-log:
-            content: activity02
-            error-content: payload02
-
-  - message-mediation:
-      target: context.response
-      value: "{ status: 400, message: 'Test test 123.' }"
-
-  - response:
-      payload: context.response
+    - response:
+        payload: context.response
 
