@@ -1,0 +1,10 @@
+context:
+  request.verb: ${request.method}
+  request.path: ${request.path.replace('/foo/', '')}
+
+assembly:
+  execute:
+    - invoke-api:
+        target-url: "http://$(target-host)/$(request.path)"
+        verb: $(request.verb)
+        timeout: 1
