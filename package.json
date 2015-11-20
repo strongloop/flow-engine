@@ -4,7 +4,7 @@
   "description": "A flow engine that is used to executed a series of tasks/policies",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,11 @@
     "continuation-local-storage": "^3.1.4",
     "winston": "^2.1.0",
     "yamljs": "^0.2.4"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "express": "^4.13.0",
+    "supertest": "^1.0.1",
+     "http-auth": "^2.2.8"
   }
 }
