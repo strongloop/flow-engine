@@ -16,9 +16,14 @@ const logger     = new (winston.Logger)({
 //middleware ctor function
 //passing in the config file via options
 module.exports = function(options) {
-    var config = undefined;
-    var error = undefined;
+    var config  = undefined;
+    var error   = undefined;
+    //this function is used to interpret or resolve the place holder in the config properties
     var paramResolver = undefined;
+    //store the tasks's setup functions
+    var tasks   = undefined;
+    
+    //step 1: loading the assembly yaml
     try {
         //TODO: this will be replaced by mplane later on
         //read config file here
@@ -44,17 +49,20 @@ module.exports = function(options) {
         error = e;
     }
 
-    try{
+    //step 2: loading the paramResolver if the 'paramResolver' presents
+    try {
         // the callback function for resolving task's parameter values
         paramResolver = require(
                     path.join((options.baseDir ? options.baseDir : '') , options.paramResolver)
                 )();
-        error = undefined;
     } catch (e) {
         logger.error("Failed to load the paramResolver: " + e);
-        error = e;
+        logger.error("Continue the flow execution with no paramResolver");
     }
-
+    
+    //step 3: loading tasks module if there is
+    tasks = loadTasks(options.tasks, options.baseDir);
+    
     //return the middleware function
     return function (req, res, next) {
         if ( error ) {
@@ -69,14 +77,33 @@ module.exports = function(options) {
             //start to run the flow engine
             var flow = new Flow(config, 
                     { 'paramResolver': paramResolver,
-                       baseDir: options.baseDir,
-                       tasks: options.tasks,
-                       ctxScope: options.ctxScope ? options.ctxScope : 'default'
+                       'baseDir': options.baseDir,
+                       'tasks': tasks,
+                       'ctxScope': options.ctxScope ? options.ctxScope : 'default'
                     });
             flow.prepare(req, res, next);
             flow.run();
         }
     };
+}
+
+function loadTasks(tasks, baseDir) {
+    var rev = {};
+    var baseDir = baseDir || '';
+    for(let name in tasks) {
+        try {
+            let taskFunc = require(path.join(baseDir, tasks[name]));
+            if ( !(taskFunc instanceof Function) ) {
+                logger.error('task module:', name, 'is not a Function, skipped');
+                continue;
+            }
+            rev[name] = taskFunc;
+        } catch (e) {
+            logger.error('failed to load task module:', name, e);
+        }
+    }
+    console.error(rev);
+    return rev;
 }
 
 module.exports.Flow = Flow;
