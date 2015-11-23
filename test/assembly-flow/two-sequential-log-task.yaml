@@ -1,0 +1,6 @@
+assembly:
+  execute:
+    - logTask:
+        parameter: task1
+    - logTask:
+        parameter: $(target-host)

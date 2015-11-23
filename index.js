@@ -52,6 +52,9 @@ module.exports = function(options) {
     //step 2: loading the paramResolver if the 'paramResolver' presents
     try {
         // the callback function for resolving task's parameter values
+        // TODO fix the issue of using '.' with path.join('.', 'someModule');
+        //      Verify the test using mocha test case in test-flow.js
+        // TODO paramResolver & task's base path must be the same???
         paramResolver = require(
                     path.join((options.baseDir ? options.baseDir : '') , options.paramResolver)
                 )();
@@ -92,6 +95,8 @@ function loadTasks(tasks, baseDir) {
     var baseDir = baseDir || '';
     for(let name in tasks) {
         try {
+            // TODO fix the issue of using '.' with path.join('.', 'someModule');
+            //      Verify the test using mocha test case in test-flow.js
             let taskFunc = require(path.join(baseDir, tasks[name]));
             if ( !(taskFunc instanceof Function) ) {
                 logger.error('task module:', name, 'is not a Function, skipped');
