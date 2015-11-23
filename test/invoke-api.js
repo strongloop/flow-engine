@@ -4,7 +4,7 @@ describe('invoke-api', function() {
   var request;
   before(
     startGateway(
-      { flow: "test/flow-invoke-api.yaml", paramResolver: 'util/apim-param-resolver.js', baseDir: __dirname},
+      { flow: "test/assembly-flow/flow-invoke-api.yaml", paramResolver: 'util/apim-param-resolver.js', baseDir: __dirname},
       { callback: function(req, res) { // backend service
           res.write(req.method + " " + req.path);
           res.end();
@@ -25,7 +25,7 @@ describe('invoke-api-timeout', function() {
   var request;
   before(
     startGateway(
-      { flow: "test/flow-invoke-api-timeout.yaml", paramResolver: 'util/apim-param-resolver.js', baseDir: __dirname},
+      { flow: "test/assembly-flow/flow-invoke-api-timeout.yaml", paramResolver: 'util/apim-param-resolver.js', baseDir: __dirname},
       { callback: function(req, res) { // backend service
           setTimeout(function() {
             res.write(req.method + " " + req.path);
@@ -58,7 +58,7 @@ describe('invoke-api-basic-auth', function() {
 
   before(
     startGateway(
-      { flow: "test/flow-invoke-api-auth.yaml", paramResolver: 'util/apim-param-resolver.js', baseDir: __dirname},
+      { flow: "test/assembly-flow/flow-invoke-api-auth.yaml", paramResolver: 'util/apim-param-resolver.js', baseDir: __dirname},
       { callback: function(req, res) { // backend service
           res.send('basic auth works');
         },
