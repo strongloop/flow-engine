@@ -100,10 +100,28 @@ app.post('/*', [ flow ]);
   ```
   var taskHandler = require('taskModule')(task_config);
   ```
-- The taks module loading procedure:
-  - use task's name to search the task module and see if there is task module under options.tasks[taskName].
+- **The taks module loading procedure**:
+  - use task's name to search the task module and see if there is a task module under options.tasks[taskName].
     The options.tasks here is the options that you pass to Flow's constructor or the setup function.
-    The difference is the options.tasks that you pass to the setup function will be processed via the `require()` and each task will turn into a module function. And the options.tasks that you pass to Flow's constructor function shall be module functions alread.
-  - keep searching the task module under ./lib/task/ inside the flowengine's directory.
+    The difference is the options.tasks that you pass to the setup function will be processed via the `require()` and each task will turn into a module function. And the options.tasks that you pass to Flow's constructor function shall be module functions already.
+  - searching the task module under ./lib/task/ inside the flowengine's directory.
   - diretcly use `require` against the task's name.
+
+- **Execute a task**:
+  - use the `task module loading procedure` above to get task's setup function
+  - get the properties/values that defined in the assemble for the task and use paramResolver to replace the placeholder into corresponding value if there is
+  - pass the properties/values above into the task's setup function: `function (config)`. Then a task function should return: `function(req, resp, next)`
+  - call the function we get from previous step and pass the req, resp and next into it. the `next` here is a callback function that is created by the flow, not the one strong-gateway passes to the flow.
+  - when the `next` callback is invoked, the flow engine determinate if there is error by checking the first argument.
+    - if the first argument presents, the flow engine will perform the `error handling procedure`
+  - if the local error handling does throw any error or the task finishes without any error, then the flow engine goes to the next task
+
+- **Error Handling**:
+  - check if there is local error handling for the task:
+    - if yes, then execute the tasks defined in the erorr handling:
+      - when the local error handling finishes, if the local handling throws another error, then go to global error handling.
+      - then the flow ends.
+    - if no, then see if there is any global error handling:
+      - no global error handling : use default error handling and then ends the flow
+      - global error handling exists: execute the global error handling and then ends the flow
 
