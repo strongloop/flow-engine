@@ -1,4 +1,4 @@
-# flowengine
+# flow-engine
 
 FlowEngine can execute a series of tasks described using YAML, see example YAML below.
 
@@ -29,9 +29,9 @@ add it to the `lib/task` directory, and FlowEngine can execute it.
 `npm install`
 
 #APIs
-To use the FlowEngine, one must `require('flowengine')`.
+To use the FlowEngine, one must `require('flow-engine')`.
 
-- setup function `require('flowengine')(configObj)`
+- setup function `require('flow-engine')(configObj)`
   
   configObj supports the follow options:
   - flow : the flow definition file and it shall be a YAML file
@@ -58,14 +58,14 @@ To use the FlowEngine, one must `require('flowengine')`.
 To execute a flow described in YAML:
 
 ```
-var flow = require('flowengine')({ config: "flow.yaml" });
+var flow = require('flow-engine')({ config: "flow.yaml" });
 //the flow is a middleware handler and ready to be used
 
 ```
 
 Or directly create a Flow instance with a specific JSON config
 ```
-const Flow = require('flowengine').Flow;
+const Flow = require('flow-engine').Flow;
 var flow = new Flow( json, optionObj );
 //you have to manually pass the req, resp, next into the flow and execute it
 flow.prepare(req, resp, next);
@@ -75,7 +75,7 @@ flow.run();
 #Sample
 
 ```
-var createFlow = require('flowengine');
+var createFlow = require('flow-engine');
 
 var flow = createFlow({
         flow: "flow.yaml",
@@ -89,10 +89,10 @@ app.post('/*', [ flow ]);
 #The Design
 ### The middleware interface
 - The interface is `function(request, response, next)`
-- The flowengine module supports the middleware interface. It returns the middleware handler:
+- The flow-engine module supports the middleware interface. It returns the middleware handler:
 
   ```
-  var middlewareHandler = require('flowengine')(some_config);
+  var middlewareHandler = require('flow-engine')(some_config);
   ```
 
 - Every task/policy that is defined inside the config should have a corresponding task module. And the task module shall also return middleware handler:
@@ -104,7 +104,7 @@ app.post('/*', [ flow ]);
   - use task's name to search the task module and see if there is a task module under options.tasks[taskName].
     The options.tasks here is the options that you pass to Flow's constructor or the setup function.
     The difference is the options.tasks that you pass to the setup function will be processed via the `require()` and each task will turn into a module function. And the options.tasks that you pass to Flow's constructor function shall be module functions already.
-  - searching the task module under ./lib/task/ inside the flowengine's directory.
+  - searching the task module under ./lib/task/ inside the flow-engine's directory.
   - diretcly use `require` against the task's name.
 
 - **Execute a task**:
