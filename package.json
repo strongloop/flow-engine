@@ -1,5 +1,5 @@
 {
-  "name": "flowengine",
+  "name": "flow-engine",
   "version": "0.0.1",
   "description": "A flow engine that is used to executed a series of tasks/policies",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.ibm.com:apimesh/flowengine.git"
+    "url": "git@github.ibm.com:apimesh/flow-engine.git"
   },
   "keywords": [
     "flow",
