@@ -1,0 +1,36 @@
+# This file contains testcases for the 'operation-switch' policy. The
+# 'operation-switch' policy is used to test the operation and generate different
+# reponses accordingly.
+
+context:
+  request.verb: ${request.method}
+  operation.id: ${request.headers['x-op-type']}
+
+assembly:
+  execute:
+    - operation-switch:
+        case:
+          - operations:
+              - createOrder
+            execute:
+              - message-mediation:
+                  target: context.response
+                  value: "{ status: 200, message: 'A new order is created.' }"
+              - response:
+                  payload: context.response
+
+          - operations:
+              - updateOrder
+            execute:
+              - message-mediation:
+                  target: context.response
+                  value: "{ status: 200, message: 'The given order is updated.' }"
+              - response:
+                  payload: context.response
+
+          - operations:
+              - deleteOrder
+            execute:
+              - response:
+                  payload: "{ status: 500, message: 'Deleting orders is not allowed.' }"
+

@@ -1,0 +1,51 @@
+# This file contains testcases for the local error handler.
+
+context:
+  foo: ${request.headers['x-foo-hdr']}
+
+assembly:
+  execute:
+    - if:
+        condition: "$(foo)"
+        execute:
+          - throw:
+              value: "{ code: $(foo), reason: 'Unexpected X-FOO-HDR is found.' }"
+
+        catch:
+          - errors:
+              - context.error.code <= 100
+            execute:
+              - message-mediation:
+                  target: context.response
+                  value: "{ status: 200, message: 'The minor error is recovered.' }"
+              - response:
+                  payload: context.response
+
+          - errors:
+              - context.error.code > 100
+            execute:
+              - throw:
+                  value: context.error
+
+    - response:
+        payload: "{ status: 200, message: 'OK' }"
+
+  catch:
+    - errors:
+        - context.error.code > 100 && context.error.code <= 500
+      execute:
+        - response:
+            payload: "{ status: 500, message: 'Found a major error.' }"
+
+    - errors:
+        - context.error.code > 500
+      execute:
+        - response:
+            payload: "{ status: 500, message: 'Found a critical error.' }"
+
+    - default:
+        - message-mediation:
+            target: context.response
+            value: "{ status: 500, message: 'Unknown error.' }"
+        - response:
+            payload: context.response
