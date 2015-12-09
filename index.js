@@ -112,4 +112,4 @@ function loadTasks(tasks, baseDir) {
 }
 
 module.exports.Flow = Flow;
-module.exports.Context = context;
+module.exports.createContext = context.createContext;
