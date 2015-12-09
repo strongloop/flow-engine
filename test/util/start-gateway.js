@@ -26,8 +26,8 @@ module.exports = function() {
       var config = yaml.load(flowOptions.flow)
       if (config.context) {
         callbacks.unshift(function(request, response, next) {
-          var contextFactory = require('../../index').Context;
-          var apimCtx = contextFactory.createContext('apim');
+          var createContext = require('../../index').createContext;
+          var apimCtx = createContext('apim');
           apimCtx.set('target-host', 'localhost:' + backendPort)
           for (var key in config.context) {
             if (config.context.hasOwnProperty(key)) {
