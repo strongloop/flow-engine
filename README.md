@@ -47,10 +47,9 @@ To use the FlowEngine, one must `require('flow-engine')`.
   - optionObj: supports the following options:
     - paramResolver: a function that is used to resolve the placeholder inside the flow config
     - tasks: an object that contains all custom task modules' name and handler function
-    - ctxScope: context's namespace. this will be used to create context object if req.ctx doesn't present
 
-- `Flow.prototype.parepare(req, resp, next)`
-   Pass the req, resp and next to the flow instance that you create by the Flow ctor
+- `Flow.prototype.parepare(context, next)`
+   Pass the `context` object and `next` function to the flow instance that you create by the Flow ctor
 
 - `Flow.prototype.run()`
    start to execute the assembly in the flow config
@@ -67,8 +66,10 @@ Or directly create a Flow instance with a specific JSON config
 ```
 const Flow = require('flow-engine').Flow;
 var flow = new Flow( json, optionObj );
-//you have to manually pass the req, resp, next into the flow and execute it
-flow.prepare(req, resp, next);
+//you have to manually pass the context and next into the flow and execute it
+//get context obj from somewhere or create it by yourself
+//and request and response object should be attached to the context obj
+flow.prepare(context, next);
 flow.run();
 ```
 
@@ -93,12 +94,15 @@ app.post('/*', [ flow ]);
 
   ```
   var middlewareHandler = require('flow-engine')(some_config);
+  middlewareHandler(request, response, next);
   ```
 
-- Every task/policy that is defined inside the config should have a corresponding task module. And the task module shall also return middleware handler:
+### The Task interface
+- Every task that is defined inside the config should have a corresponding task module. And the task module should provide setup function and return a task function - `function(context, next)`
 
   ```
   var taskHandler = require('taskModule')(task_config);
+  taskHandler(context, next);
   ```
 - **The taks module loading procedure**:
   - use task's name to search the task module and see if there is a task module under options.tasks[taskName].
@@ -110,18 +114,21 @@ app.post('/*', [ flow ]);
 - **Execute a task**:
   - use the `task module loading procedure` above to get task's setup function
   - get the properties/values that defined in the assemble for the task and use paramResolver to replace the placeholder into corresponding value if there is
-  - pass the properties/values above into the task's setup function: `function (config)`. Then a task function should return: `function(req, resp, next)`
-  - call the function we get from previous step and pass the req, resp and next into it. the `next` here is a callback function that is created by the flow, not the one strong-gateway passes to the flow.
-  - when the `next` callback is invoked, the flow engine determinate if there is error by checking the first argument.
-    - if the first argument presents, the flow engine will perform the `error handling procedure`
-  - if the local error handling does throw any error or the task finishes without any error, then the flow engine goes to the next task
+  - pass the properties/values above into the task's setup function: `function (config)`. Then a task function should return: `function(context, next)`
+  - call the function we get from previous step and pass the context obj and next function into it. the `next` here is a callback function that is created by the flow, not the one strong-gateway passes to the flow.
+  - when the `next` callback is invoked, the flow engine determinate if there is an error by checking the first argument.
+    - if the first argument presents, the flow engine will perform the `Error Handling` procedure
+  - if the task finishes without any error, then the flow engine goes to the next task
 
 - **Error Handling**:
   - check if there is local error handling for the task:
     - if yes, then execute the tasks defined in the erorr handling:
-      - when the local error handling finishes, if the local handling throws another error, then go to global error handling.
-      - then the flow ends.
+      - when the local error handling finishes and the local handling throws another error, then go to global error handling
+      - then the flow ends
     - if no, then see if there is any global error handling:
       - no global error handling : use default error handling and then ends the flow
       - global error handling exists: execute the global error handling and then ends the flow
 
+
+### The `context` object
+The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. The most important thing in the context for the flow-engine is the `request` object. Currently, flow-engine uses `context.req` to get request object. flow-engine also uses the `context` object as one of the arguments when invoking every task function. Some flow-engine related functions are attached to `context.flow`. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
