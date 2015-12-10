@@ -18,8 +18,8 @@ describe('assembly-flow', function() {
             assert.equal(resp.myLog[0], 'task1');
             assert.equal(resp.myLog[1], '$(target-host)');
             console.log('=================================\n'+
-                        'Final Flow Execution Output:\n' + 
-                        JSON.stringify(resp, undefined, 2) + 
+                        'Final Flow Execution Output:\n' +
+                        JSON.stringify(resp, undefined, 2) +
                         '\n=================================');
             done();
         });
@@ -42,8 +42,8 @@ describe('assembly-flow', function() {
             assert.equal(resp.myLog[1], '$(target-host)');
             assert.equal(resp.myLog[2], 'task4');
             console.log('=================================\n'+
-                        'Final Flow Execution Output:\n' + 
-                        JSON.stringify(resp, undefined, 2) + 
+                        'Final Flow Execution Output:\n' +
+                        JSON.stringify(resp, undefined, 2) +
                         '\n=================================');
             done();
         });
@@ -58,12 +58,12 @@ describe('assembly-flow', function() {
         options.tasks.logTask = 'assembly-task/logTask';
         options.paramResolver = 'util/apim-param-resolver';
 
+        options.context = require('../lib/context.js').createContext('test');
         let flow = require('../index.js')(options);
 
         let req = {};
         // TODO need to be able to get context easier
-        req.ctx = require('../lib/context.js').createContext('test');
-        req.ctx.set('target-host', 'www.somewhere.com');
+        options.context.set('target-host', 'www.somewhere.com');
         let resp = {};
         flow(req, resp, function() {
             assert.equal(resp.myLog.length, 3);
@@ -71,8 +71,8 @@ describe('assembly-flow', function() {
             assert.equal(resp.myLog[1], 'www.somewhere.com');
             assert.equal(resp.myLog[2], 'task4');
             console.log('=================================\n'+
-                        'Final Flow Execution Output:\n' + 
-                        JSON.stringify(resp, undefined, 2) + 
+                        'Final Flow Execution Output:\n' +
+                        JSON.stringify(resp, undefined, 2) +
                         '\n=================================');
             done();
         });
