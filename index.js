@@ -22,7 +22,8 @@ module.exports = function(options) {
     var paramResolver = undefined;
     //store the tasks's setup functions
     var tasks   = undefined;
-    
+    var ctx = undefined;
+
     //step 1: loading the assembly yaml
     try {
         //TODO: this will be replaced by mplane later on
@@ -62,10 +63,13 @@ module.exports = function(options) {
         logger.error("Failed to load the paramResolver: " + e);
         logger.error("Continue the flow execution with no paramResolver");
     }
-    
+
     //step 3: loading tasks module if there is
     tasks = loadTasks(options.tasks, options.baseDir);
-    
+
+    //step 4: prepare ctx if not ready
+    ctx = options.context || context.createContext();
+
     //return the middleware function
     return function (req, res, next) {
         if ( error ) {
@@ -82,9 +86,10 @@ module.exports = function(options) {
                     { 'paramResolver': paramResolver,
                        'baseDir': options.baseDir,
                        'tasks': tasks,
-                       'ctxScope': options.ctxScope ? options.ctxScope : 'default'
                     });
-            flow.prepare(req, res, next);
+            ctx.req = req;
+            ctx.res = res;
+            flow.prepare(ctx, next);
             flow.run();
         }
     };
