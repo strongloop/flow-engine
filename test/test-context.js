@@ -69,4 +69,38 @@ describe('context module', function() {
            should(ctx.get('fool')).exactly(1000).and.be.a.Number();
        });
     });
+   describe('set readOnly variables', function() {
+       it('should not be able to change a readOnly string variable', function() {
+           var ctx = createContext();
+           ctx.set('fool', 'bar', true);
+           ctx.fool.should.exactly('bar').and.be.a.String();
+           should(ctx.get('fool')).exactly('bar').and.be.a.String();
+           should(ctx).have.propertyWithDescriptor('fool', {writable:false, configurable:false});
+           should.throws(function() {
+               ctx.set('fool', 'test');
+           });
+           should.throws(function() {
+               ctx.fool = 'test';
+           });
+           should.throws(function() {
+               delete ctx.fool;
+           });
+       });
+       it('should not be able to change a readOnly object variable', function() {
+           var ctx = createContext();
+           var obj = {};
+           ctx.set('fool', obj, true);
+           ctx.fool.should.exactly(obj).and.be.a.Object();
+           should(ctx.get('fool')).exactly(obj).and.be.a.Object();
+           should(ctx).have.propertyWithDescriptor('fool', {writable:false, configurable:false});
+           should.throws(function() {
+               ctx.set('fool', 'test');
+           });
+           should.throws(function() {
+               ctx.fool = 'test';
+           });
+           ctx.set('fool.child', 'mychild');
+           ctx.fool.child.should.exactly('mychild').and.be.a.String();
+       });
+    });
 });

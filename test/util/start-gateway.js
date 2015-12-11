@@ -11,9 +11,6 @@ module.exports = function() {
     throw new Error('Need at least 2 parameters to start Gateway, usage: startGateway(flow-options [, backend-options], done)')
   }
   var flowOptions = arguments[0];
-  var context = createContext();
-  flowOptions.context = context;
-
   if (arguments.length === 2) {
     var backendOptions = null;
     var done = arguments[1];
@@ -25,11 +22,15 @@ module.exports = function() {
   return function(next) {
     var backendPort;
     function startGateway() {
-      var flow = createFlow(flowOptions);
-      var callbacks = [flow];
+      function flowMiddleware(request, response, next) {
+        flowOptions.context = request.context;
+        createFlow(flowOptions)(request, response, next);
+      }
+      var callbacks = [flowMiddleware];
       var config = yaml.load(flowOptions.flow)
       if (config.context) {
         callbacks.unshift(function(request, response, next) {
+          var context = createContext();
           context.set('target-host', 'localhost:' + backendPort)
           for (var key in config.context) {
             if (config.context.hasOwnProperty(key)) {
@@ -42,6 +43,7 @@ module.exports = function() {
               context.set(key, value);
             }
           }
+          request.context = context;
           next();
         });
       }

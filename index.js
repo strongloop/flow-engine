@@ -87,8 +87,8 @@ module.exports = function(options) {
                        'baseDir': options.baseDir,
                        'tasks': tasks,
                     });
-            ctx.req = req;
-            ctx.res = res;
+            ctx.set('req', req, true);
+            ctx.set('res', res, true);
             flow.prepare(ctx, next);
             flow.run();
         }

@@ -58,7 +58,7 @@ describe('assembly-flow', function() {
         options.tasks.logTask = 'assembly-task/logTask';
         options.paramResolver = 'util/apim-param-resolver';
 
-        options.context = require('../lib/context.js').createContext('test');
+        options.context = require('../lib/context.js').createContext();
         let flow = require('../index.js')(options);
 
         let req = {};
