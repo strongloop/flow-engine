@@ -15,8 +15,12 @@ describe('invoke-api', function() {
       }
     ));
 
-  it('reverse proxy', function(done) {
+  it('reverse proxy - POST ', function(done) {
     request.post("/foo/bar").expect(200, /^POST \/bar$/, done);
+  });
+
+  it('reverse proxy - GET', function(done) {
+    request.get("/foo/bar").expect(200, /^GET \/bar$/, done);
   });
 
 });
