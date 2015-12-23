@@ -114,7 +114,6 @@ function loadTasks(tasks, baseDir) {
             logger.error('failed to load task module:', name, e);
         }
     }
-    console.error(rev);
     return rev;
 }
 

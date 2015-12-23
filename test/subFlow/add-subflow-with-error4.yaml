@@ -1,0 +1,32 @@
+assembly:
+  execute:
+    - add-sub-flow:
+        subFlow:
+            execute:
+                - activity-log:
+                    content: activity-log-1
+                - activity-log:
+                    content: activity-log-2
+                - set-secret-code:
+                    code : 666
+                - if:
+                    condition: context['set-secret-code'] == 666
+                    execute:
+                      - throw:
+                          value: "'error-on-purpose2'"
+            
+                    catch:
+                        - errors:
+                            - context.error == 'error-on-purpose'
+                          execute:
+                            - set-secret-code:
+                                code : 444
+            catch:
+                - errors:
+                    - context.error == 'error-on-purpose2'
+                  execute: 
+                    - set-secret-code:
+                        code : 999
+                - default:
+                    - set-secret-code:
+                        code : 888
