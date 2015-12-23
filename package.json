@@ -4,6 +4,7 @@
   "description": "A flow engine that is used to executed a series of tasks/policies",
   "main": "index.js",
   "scripts": {
+    "pretest": "jshint .",
     "test": "mocha"
   },
   "repository": {
@@ -24,6 +25,7 @@
   "devDependencies": {
     "express": "^4.13.0",
     "http-auth": "^2.2.8",
+    "jshint": "^2.8.0",
     "mocha": "^2.2.5",
     "should": "^8.0.0",
     "supertest": "^1.0.1"
