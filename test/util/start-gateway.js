@@ -8,15 +8,19 @@ var createContext = require('../../index.js').createContext;
 
 module.exports = function() {
   if (arguments.length < 2) {
-    throw new Error('Need at least 2 parameters to start Gateway, usage: startGateway(flow-options [, backend-options], done)')
+    throw new Error(
+            'Need at least 2 parameters to start Gateway. ' +
+            'Usage: startGateway(flow-options [, backend-options], done)');
   }
   var flowOptions = arguments[0];
+  var backendOptions;
+  var done;
   if (arguments.length === 2) {
-    var backendOptions = null;
-    var done = arguments[1];
+    backendOptions = null;
+    done = arguments[1];
   } else {
-    var backendOptions = arguments[1];
-    var done = arguments[2];
+    backendOptions = arguments[1];
+    done = arguments[2];
   }
 
   return function(next) {
@@ -27,18 +31,19 @@ module.exports = function() {
         createFlow(flowOptions)(request, response, next);
       }
       var callbacks = [flowMiddleware];
-      var config = yaml.load(flowOptions.flow)
+      var config = yaml.load(flowOptions.flow);
       if (config.context) {
         callbacks.unshift(function(request, response, next) {
           var context = createContext();
-          context.set('target-host', 'localhost:' + backendPort)
+          context.set('target-host', 'localhost:' + backendPort);
+          function _eval(m, g) {
+              return eval(g);
+          }
           for (var key in config.context) {
             if (config.context.hasOwnProperty(key)) {
               var value = config.context[key];
               if (util.isString(value)) {
-                value = value.replace(/\$\{([^}]+)\}/, function(m, g) {
-                  return eval(g);
-                });
+                value = value.replace(/\$\{([^}]+)\}/, _eval);
               }
               context.set(key, value);
             }
@@ -70,5 +75,5 @@ module.exports = function() {
     } else {
       startGateway();
     }
-  }
-}
+  };
+};

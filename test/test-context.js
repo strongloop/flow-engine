@@ -1,5 +1,4 @@
 'use strict';
-const assert        = require('assert');
 const createContext = require('../index.js').createContext;
 const should        = require('should');
 
@@ -70,12 +69,13 @@ describe('context module', function() {
        });
     });
    describe('set readOnly variables', function() {
-       it('should not be able to change a readOnly string variable', function() {
+       it('should not be able to write a readOnly string variable', function() {
            var ctx = createContext();
            ctx.set('fool', 'bar', true);
            ctx.fool.should.exactly('bar').and.be.a.String();
            should(ctx.get('fool')).exactly('bar').and.be.a.String();
-           should(ctx).have.propertyWithDescriptor('fool', {writable:false, configurable:false});
+           should(ctx).have.propertyWithDescriptor(
+               'fool', {writable:false, configurable:false});
            should.throws(function() {
                ctx.set('fool', 'test');
            });
@@ -86,13 +86,14 @@ describe('context module', function() {
                delete ctx.fool;
            });
        });
-       it('should not be able to change a readOnly object variable', function() {
+       it('should not be able to write a readOnly object variable', function() {
            var ctx = createContext();
            var obj = {};
            ctx.set('fool', obj, true);
            ctx.fool.should.exactly(obj).and.be.a.Object();
            should(ctx.get('fool')).exactly(obj).and.be.a.Object();
-           should(ctx).have.propertyWithDescriptor('fool', {writable:false, configurable:false});
+           should(ctx).have.propertyWithDescriptor(
+               'fool', {writable:false, configurable:false});
            should.throws(function() {
                ctx.set('fool', 'test');
            });
