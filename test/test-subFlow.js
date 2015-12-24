@@ -2,19 +2,13 @@
 var startGateway = require('./util/start-gateway.js');
 const should        = require('should');
 
-function backendFunc(req, resp) {
-    console.error('backend');
-    resp.write(req.method + " " + req.path);
-    resp.end();
-}
-
 describe('use invoke() API of flow-engine to execute a sub-flow', function() {
    describe('custom addSubFlow task', function() {
        describe('green path subFlow', function() {
            it('should correctly execute the newly-added subFlow', function(done) {
-               var request = undefined;
+               var request;
                startGateway(
-                       { flow: "test/subFlow/add-subflow.yaml", 
+                       { flow: 'test/subFlow/add-subflow.yaml',
                            paramResolver: 'util/apim-param-resolver.js',
                            baseDir: __dirname,
                            tasks: { 'add-sub-flow': 'subFlow/add-sub-flow.js',
@@ -22,7 +16,7 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        function(req) {
                            request = req;
                        })( function () {
-                           request.get("/foo/bar").expect(200, /okay/, done);
+                           request.get('/foo/bar').expect(200, /okay/, done);
                        }, [function (req, resp, next) {
                            resp.writeHead(200, {'Content-Type': 'text/plain'});
                            resp.end('okay');
@@ -34,9 +28,9 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
        });
        describe('error path subFlow', function() {
            it('should execute subflow and go to the default error path', function(done) {
-               var request = undefined;
+               var request;
                startGateway(
-                       { flow: "test/subFlow/add-subflow-with-error.yaml", 
+                       { flow: 'test/subFlow/add-subflow-with-error.yaml',
                            paramResolver: 'util/apim-param-resolver.js',
                            baseDir: __dirname,
                            tasks: { 'add-sub-flow': 'subFlow/add-sub-flow.js',
@@ -44,7 +38,7 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        function(req) {
                            request = req;
                        })( function () {
-                           request.get("/foo/bar").expect(200, /okay/, done);
+                           request.get('/foo/bar').expect(200, /okay/, done);
                        }, [function (req, resp, next) {
                            resp.writeHead(200, {'Content-Type': 'text/plain'});
                            resp.end('okay');
@@ -54,9 +48,9 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        }]);
            });
            it('should execute subflow and go to the specific error path', function(done) {
-               var request = undefined;
+               var request;
                startGateway(
-                       { flow: "test/subFlow/add-subflow-with-error2.yaml", 
+                       { flow: 'test/subFlow/add-subflow-with-error2.yaml',
                            paramResolver: 'util/apim-param-resolver.js',
                            baseDir: __dirname,
                            tasks: { 'add-sub-flow': 'subFlow/add-sub-flow.js',
@@ -64,7 +58,7 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        function(req) {
                            request = req;
                        })( function () {
-                           request.get("/foo/bar").expect(200, /okay/, done);
+                           request.get('/foo/bar').expect(200, /okay/, done);
                        }, [function (req, resp, next) {
                            resp.writeHead(200, {'Content-Type': 'text/plain'});
                            resp.end('okay');
@@ -76,9 +70,9 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
        });
        describe('subFlow contains if', function() {
            it('should execute the sepcific error flow in if', function(done) {
-               var request = undefined;
+               var request;
                startGateway(
-                       { flow: "test/subFlow/add-subflow-with-error3.yaml", 
+                       { flow: 'test/subFlow/add-subflow-with-error3.yaml',
                            paramResolver: 'util/apim-param-resolver.js',
                            baseDir: __dirname,
                            tasks: { 'add-sub-flow': 'subFlow/add-sub-flow.js',
@@ -86,7 +80,7 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        function(req) {
                            request = req;
                        })( function () {
-                           request.get("/foo/bar").expect(200, /okay/, done);
+                           request.get('/foo/bar').expect(200, /okay/, done);
                        }, [function (req, resp, next) {
                            resp.writeHead(200, {'Content-Type': 'text/plain'});
                            resp.end('okay');
@@ -96,9 +90,9 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        }]);
            });
            it('should execute the sepcific error flow in subflow', function(done) {
-               var request = undefined;
+               var request;
                startGateway(
-                       { flow: "test/subFlow/add-subflow-with-error4.yaml", 
+                       { flow: 'test/subFlow/add-subflow-with-error4.yaml',
                            paramResolver: 'util/apim-param-resolver.js',
                            baseDir: __dirname,
                            tasks: { 'add-sub-flow': 'subFlow/add-sub-flow.js',
@@ -106,7 +100,7 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        function(req) {
                            request = req;
                        })( function () {
-                           request.get("/foo/bar").expect(200, /okay/, done);
+                           request.get('/foo/bar').expect(200, /okay/, done);
                        }, [function (req, resp, next) {
                            resp.writeHead(200, {'Content-Type': 'text/plain'});
                            resp.end('okay');
@@ -118,9 +112,9 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
        });
        describe('add subFlow: only execute', function() {
            it('should execute the sepcific error flow in if', function(done) {
-               var request = undefined;
+               var request;
                startGateway(
-                       { flow: "test/subFlow/add-subflow-with-error3.yaml", 
+                       { flow: 'test/subFlow/add-subflow-with-error3.yaml',
                            paramResolver: 'util/apim-param-resolver.js',
                            baseDir: __dirname,
                            tasks: { 'add-sub-flow': 'subFlow/add-sub-flow2.js',
@@ -128,7 +122,7 @@ describe('use invoke() API of flow-engine to execute a sub-flow', function() {
                        function(req) {
                            request = req;
                        })( function () {
-                           request.get("/foo/bar").expect(200, /okay/, done);
+                           request.get('/foo/bar').expect(200, /okay/, done);
                        }, [function (req, resp, next) {
                            resp.writeHead(200, {'Content-Type': 'text/plain'});
                            resp.end('okay');

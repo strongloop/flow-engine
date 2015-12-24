@@ -31,10 +31,10 @@ module.exports = function() {
         createFlow(flowOptions)(request, response, next);
       }
       var callbacks = [flowMiddleware];
-      var config = yaml.load(flowOptions.flow)
+      var config = yaml.load(flowOptions.flow);
       callbacks.unshift(function(request, response, next) {
         var context = createContext();
-        context.set('target-host', 'localhost:' + backendPort)
+        context.set('target-host', 'localhost:' + backendPort);
         function _eval(m, g) {
           return eval(g);
         }
