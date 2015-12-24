@@ -3,7 +3,7 @@ context:
 
 assembly:
   execute:
-    - invoke-api:
+    - invoke:
         target-url: "http://$(target-host)/"
         verb: $(request.verb)
         timeout: 1

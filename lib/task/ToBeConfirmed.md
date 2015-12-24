@@ -7,6 +7,6 @@
     1. the task must keep the error object somewhere, or
     2. the Flow must keep the error object in context.error when it receives the error via next()?
 
-## invoke-api
-* As long as the invoke-api receives the response code, whether 2xx or not, from the target URL, its execution should be considered as a success. Only when there is any connection error (ex: timeout, host not found, ssl handshake error), the execution will be treated with an error.
+## invoke
+* As long as the invoke receives the response code, whether 2xx or not, from the target URL, its execution should be considered as a success. Only when there is any connection error (ex: timeout, host not found, ssl handshake error), the execution will be treated with an error.
 * auto-follow v.s. redirect?

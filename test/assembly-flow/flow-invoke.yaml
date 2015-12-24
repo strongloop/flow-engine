@@ -4,7 +4,7 @@ context:
 
 assembly:
   execute:
-    - invoke-api:
+    - invoke:
         target-url: "http://$(target-host)/$(request.path)"
         verb: $(request.verb)
         timeout: 1
