@@ -35,24 +35,27 @@ To use the FlowEngine, one must `require('flow-engine')`.
   
   configObj supports the follow options:
   - flow : the flow definition file and it shall be a YAML file
-  - paramResolver: a module's **location** that is used to resolve the placeholder inside the flow config
+  - paramResolver: a module's **location** that is used to resolve the placeholder inside the flow assembly
   - tasks: an object that contains all custom task modules' name and **location**
   - baseDir: the base directory that will be used to load modules
 
   and the return value is a middleware handler
   
-- `Flow(flowCfg, optionObj)`
-  Create a flow instance with the flowCfg which contains the flow's assembly
-  - flowCfg: the flow's assemble and it's JSON object
+- `Flow(assembly, optionObj)`
+
+  Create a flow instance with the flow assembly
+  - assembly: the flow's assembly and it's JSON object
   - optionObj: supports the following options:
-    - paramResolver: a function that is used to resolve the placeholder inside the flow config
+    - paramResolver: a function that is used to resolve the placeholder inside the flow assembly
     - tasks: an object that contains all custom task modules' name and handler function
 
 - `Flow.prototype.parepare(context, next)`
+
    Pass the `context` object and `next` function to the flow instance that you create by the Flow ctor
 
 - `Flow.prototype.run()`
-   start to execute the assembly in the flow config
+
+   start to execute the flow assembly
 
 To execute a flow described in YAML:
 
@@ -72,6 +75,22 @@ var flow = new Flow( json, optionObj );
 flow.prepare(context, next);
 flow.run();
 ```
+
+#APIs for Task developer
+A task is the unit of the flow assembly. flow-engine leverages tasks to fulfills
+a flow assembly. When developing a custom task, flow-engine provides the following APIs
+which are attached to `context.flow`:
+
+- `invoke(assembly, next, options)`
+
+  flow-engine runs the given `assembly`. When the assembly finishes. the `next` callback
+  will be invoked. the `options` here is the same as the options in `Flow(assembly, optionObj)`
+  - assembly: the flow's assembly and it's JSON object
+  - next: this callback will be invoked after the assembly finishes
+  - options: supports the following options:
+    - paramResolver: a function that is used to resolve the placeholder inside the flow assembly
+    - tasks: an object that contains all custom task modules' name and handler function
+    If these properties don't exist, the parent's will be used.
 
 #Sample
 
