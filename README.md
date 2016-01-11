@@ -31,8 +31,7 @@ add it to the `lib/task` directory, and FlowEngine can execute it.
 #APIs
 To use the FlowEngine, one must `require('flow-engine')`.
 
-- setup function `require('flow-engine')(configObj)`
-  
+- setup function `require('flow-engine')(configObj)`:  
   configObj supports the follow options:
   - flow : the flow definition file and it shall be a YAML file
   - paramResolver: a module's **location** that is used to resolve the placeholder inside the flow assembly
@@ -41,20 +40,17 @@ To use the FlowEngine, one must `require('flow-engine')`.
 
   and the return value is a middleware handler
   
-- `Flow(assembly, optionObj)`
-
+- `Flow(assembly, optionObj)`:  
   Create a flow instance with the flow assembly
   - assembly: the flow's assembly and it's JSON object
   - optionObj: supports the following options:
     - paramResolver: a function that is used to resolve the placeholder inside the flow assembly
     - tasks: an object that contains all custom task modules' name and handler function
 
-- `Flow.prototype.parepare(context, next)`
-
+- `Flow.prototype.parepare(context, next)`:  
    Pass the `context` object and `next` function to the flow instance that you create by the Flow ctor
 
-- `Flow.prototype.run()`
-
+- `Flow.prototype.run()`:    
    start to execute the flow assembly
 
 To execute a flow described in YAML:
@@ -81,8 +77,7 @@ A task is the unit of the flow assembly. flow-engine leverages tasks to fulfills
 a flow assembly. When developing a custom task, flow-engine provides the following APIs
 which are attached to `context.flow`:
 
-- `invoke(assembly, next, options)`
-
+- `invoke(assembly, next, options)`:  
   flow-engine runs the given `assembly`. When the assembly finishes. the `next` callback
   will be invoked. the `options` here is the same as the options in `Flow(assembly, optionObj)`
   - assembly: the flow's assembly and it's JSON object
@@ -151,3 +146,34 @@ app.post('/*', [ flow ]);
 
 ### The `context` object
 The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. The most important thing in the context for the flow-engine is the `request` object. Currently, flow-engine uses `context.req` to get request object. flow-engine also uses the `context` object as one of the arguments when invoking every task function. Some flow-engine related functions are attached to `context.flow`. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
+
+Currently, flow-engine provides a context module in `./lib/context` which could be used to create the context object. It provides the following APIs:
+- createContext([namespace]):  
+  create a context object with the specified namespace. namespace is optional.
+
+- The context object provides getter, setter and dot notation to access its variables:
+  - get(name):  
+    get the variable by name.
+
+  - set(name, value[, readOnly]):    
+    add or update a variable with the specified name and value. default value of readOnly is 'false'.
+    Use readonly=true to add read-only variable.  
+    Note: updating a read-only variable will cause exception.
+
+  - dot notation:  
+    You can also use dot notation to access the variables of a context object.
+```javascript
+        //If a context is created with a namespace - 'fool', you can access its variables like this:    
+        var ctx1 = require('./lib/context').createContext('fool');
+        ctx1.set('myvar', 'value');
+        ctx1.fool.myvar === 'value';
+        ctx1.fool.myvar = 'new-value';
+        ctx1.get('myvar') === 'new-value';
+        //
+        //If there is no namepsace, then all of the variables are directly attached to the context object:
+        var ctx2 = require('./lib/context').createContext();
+        ctx2.set('myvar', 'value');
+        ctx2.myvar === 'value';
+        ctx2.myvar = 'new-value';
+        ctx2.get('myvar') === 'new-value';
+```
