@@ -158,7 +158,17 @@ Currently, flow-engine provides a context module in `./lib/context` which could 
   - set(name, value[, readOnly]):    
     add or update a variable with the specified name and value. default value of readOnly is 'false'.
     Use readonly=true to add read-only variable.  
-    Note: updating a read-only variable will cause exception.
+    Note: updating a read-only variable will cause the exception.
+
+  - define(name, getter[,setter, configurable]):
+    - `name`: variable name
+    - `getter`: getter function
+    - `setter`: setter function
+    - `configurable`: allow re-define or not. (true|false)
+
+    add or update a variable with the specified getter, setter and configurable.
+    Use configruable=false to avoid variable re-define.  
+    Note: set new value to a getter-only variable will cause the exception.
 
   - dot notation:  
     You can also use dot notation to access the variables of a context object.
