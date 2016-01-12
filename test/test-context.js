@@ -104,4 +104,101 @@ describe('context module', function() {
            ctx.fool.child.should.exactly('mychild').and.be.a.String();
        });
     });
+   describe('define a variable', function() {
+       it('should work like counter', function() {
+           var ctx = createContext();
+           var counter = 0;
+           ctx.define('counter', function() {
+               return counter++;
+           });
+           ctx.counter.should.exactly(0).and.be.a.Number();
+           should(ctx.get('counter')).exactly(1).and.be.a.Number();
+           ctx.counter.should.exactly(2).and.be.a.Number();
+       });
+       it('should not be re-define if configurable=false', function() {
+           var ctx = createContext();
+           ctx.define('fool', function() {
+               return 'fool';
+           }, false);
+           should.throws( function () {
+               ctx.define('fool', function() {
+                   return 'later';
+               });
+           });
+           ctx.define('fool2', function() {
+                   return 'fool2';
+               },
+               function (value) {
+               },
+               false);
+           should.throws( function () {
+               ctx.define('fool2', function() {
+                   return 'later';
+               });
+           });
+       });
+       it('should be able to re-define if configurable=true', function() {
+           var ctx = createContext();
+           ctx.define('fool', function() {
+               return 'fool';
+           });
+           ctx.define('fool', function() {
+                   return 'later';
+           });
+           ctx.fool.should.exactly('later').and.be.a.String();
+
+           ctx.define('fool2', function() {
+                   return 'fool2';
+               },
+               function (value) {
+               });
+           ctx.define('fool2', function() {
+               return 'later2';
+           });
+           ctx.fool2.should.exactly('later2').and.be.a.String();
+
+           ctx.define('fool3', function() {
+               return 'fool3';
+           }, true);
+           ctx.define('fool3', function() {
+                   return 'later3';
+           }, true);
+           ctx.fool3.should.exactly('later3').and.be.a.String();
+
+
+           ctx.define('fool4', function() {
+               return 'fool4';
+               },
+               function (value) {
+               }, true);
+           ctx.define('fool4', function() {
+               return 'later4';
+           });
+           ctx.fool4.should.exactly('later4').and.be.a.String();
+       });
+       it('should be able to use setter', function() {
+           var ctx = createContext();
+           var myval = '';
+           ctx.define('myval', function() {
+                   return myval;
+               },
+               function (value) {
+                   myval = 'xx' + value;
+               });
+           
+           ctx.myval.should.exactly('').and.be.a.String();
+           ctx.myval = 'new-val';
+           ctx.myval.should.exactly('xxnew-val').and.be.a.String();
+       });
+       it('should get an exception if setting a new value to a getter-only variable', function() {
+           var ctx = createContext();
+           ctx.define('fool', function() {
+                   return 'value';
+           });
+           ctx.fool.should.exactly('value').and.be.a.String();
+           should.throws(function () {
+               ctx.fool = 'new-value';
+           });
+       });
+    });
 });
