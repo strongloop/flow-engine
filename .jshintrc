@@ -17,7 +17,6 @@
   "unused": "vars",
   "trailing": true,
   "sub": true,
-  "maxlen": 80,
   "globals": {
     "describe": false,
     "it": false,
