@@ -13,11 +13,10 @@ assembly:
                     condition: context['set-secret-code'] == 666
                     execute:
                       - throw:
-                          value: "'error-on-purpose'"
-            
+                          name: 'error-on-purpose'
                     catch:
                         - errors:
-                            - context.error == 'error-on-purpose'
+                            - 'error-on-purpose'
                           execute:
                             - set-secret-code:
                                 code : 444
@@ -26,7 +25,7 @@ assembly:
                                 code : 888
             catch:
                 - errors:
-                    - context.error == 'error-on-purpose'
+                    - 'error-on-purpose'
                   execute: 
                     - set-secret-code:
                         code : 999

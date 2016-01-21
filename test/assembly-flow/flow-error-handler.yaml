@@ -6,46 +6,51 @@ context:
 assembly:
   execute:
     - if:
-        condition: "$(foo)"
+        condition: '$(foo)'
         execute:
           - throw:
-              value: "{ code: $(foo), reason: 'Unexpected X-FOO-HDR is found.' }"
+              name: 'code$(foo)'
 
         catch:
           - errors:
-              - context.error.code <= 100
+              - 'code50'
             execute:
               - message-mediation:
                   target: context.response
-                  value: "{ status: 200, message: 'The minor error is recovered.' }"
+                  value: '{ status: 200, message: "The minor error is recovered." }'
               - response:
                   payload: context.response
 
           - errors:
-              - context.error.code > 100
+              - 'code300'
+              - 'code400'
+              - 'code500'
+              - 'code600'
             execute:
               - throw:
-                  value: context.error
+                  name: 'fault$(foo)'
 
-    - response:
-        payload: "{ status: 200, message: 'OK' }"
+    - activity-log:
+        content: dummy
 
   catch:
     - errors:
-        - context.error.code > 100 && context.error.code <= 500
+        - 'fault300'
+        - 'fault400'
       execute:
         - response:
-            payload: "{ status: 500, message: 'Found a major error.' }"
+            payload: '{ status: 500, message: "Found a major error." }'
 
     - errors:
-        - context.error.code > 500
+        - 'fault500'
+        - 'fault600'
       execute:
         - response:
-            payload: "{ status: 500, message: 'Found a critical error.' }"
+            payload: '{ status: 500, message: "Found a critical error." }'
 
     - default:
         - message-mediation:
             target: context.response
-            value: "{ status: 500, message: 'Unknown error.' }"
+            value: '{ status: 500, message: "Unknown error." }'
         - response:
             payload: context.response
