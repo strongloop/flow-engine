@@ -1,0 +1,92 @@
+# In the main flow, the second policy invokes a subflow 'SF'. And in the
+# subflow, the second policy could fail. So it got its own error handler L1 to
+# take care of error 'a' and 'b'. However, the second policy in the case 'a' of
+# local error handler could throw another error 'b'. And this error 'b' won't be
+# caught by any error handler. Check for the pseudo codes for why.
+#
+# ///
+# ///the main flow and the case 'a' in local error handler L1
+# ///
+#
+# Main: [t1]--[C1]--[t2]-->
+#              |
+#              |        L1 <a,b>
+#           SF +-[t3]--[x]--[t4]-->
+#                   error='a'
+#
+#
+# L1_a: [t5]--[x]--[t6]-->
+#           error='b'
+#
+# ///
+# /// the equivalent example in pseudo code
+# ///
+#
+# int main() {
+#     task1();
+#     SF(); //invoke the subflow
+#     task2();
+# }
+#
+# void SF() {
+#     task3();
+#     try {
+#         something();  //may throw error 'a' or 'b'
+#     }
+#     catch (a) {
+#         task5();
+#         //if 'b' is thrown inside the catch 'a', it can never be caught.
+#         throw 'b';
+#         task7();
+#     }
+#     catch (b) {
+#        ...
+#     }
+#     task4();
+# }
+
+assembly:
+  execute:
+    - append-code:
+        label: 'Body'
+        code: 'MT1'
+
+    - call:
+        name: 'subflow'
+        execute:
+            - append-code:
+                label: 'Body'
+                code: 'SFT3'
+
+            - throw:
+                name: 'a'
+                catch:
+                    - errors:
+                        - 'a'
+                      execute:
+                        - append-code:
+                            label: 'Body'
+                            code: 'LHCaT5'
+
+                        - throw:
+                            name: 'b'
+                            message: 'catch me if you can'
+
+                        - append-code:
+                            label: 'Body'
+                            code: 'LHCaT6'
+                    - errors:
+                        - 'b'
+                      execute:
+                        - append-code:
+                            label: 'Body'
+                            code: 'LHCb'
+
+            - append-code:
+                label: 'Body'
+                code: 'SFT4'
+
+    - append-code:
+        label: 'Body'
+        code: 'MT2'
+

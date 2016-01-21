@@ -185,12 +185,12 @@ describe('context module', function() {
                function (value) {
                    myval = 'xx' + value;
                });
-           
+
            ctx.myval.should.exactly('').and.be.a.String();
            ctx.myval = 'new-val';
            ctx.myval.should.exactly('xxnew-val').and.be.a.String();
        });
-       it('should get an exception if setting a new value to a getter-only variable', function() {
+       it('should get exception if setting a getter-only variable', function() {
            var ctx = createContext();
            ctx.define('fool', function() {
                    return 'value';

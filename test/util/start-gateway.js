@@ -36,7 +36,8 @@ module.exports = function() {
         var context = createContext();
         context.set('target-host', 'localhost:' + backendPort);
         function _eval(m, g) {
-          return eval(g);// jshint ignore:line
+          /*jshint evil:true */
+          return eval(g);
         }
         if (config.context) {
           for (var key in config.context) {
