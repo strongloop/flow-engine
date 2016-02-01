@@ -11,7 +11,10 @@ module.exports = function ( config ) {
             context.set('verify-me', 'ev-throw-' + (count+1));
             throw new Error('throw error');
         };
-	    context.flow.subscribe(config.event, eh);
+        var events = config.event.split(',');
+        events.forEach( function ( event ) {
+            context.flow.subscribe(event, eh);
+        });
 	    next();
     };
 };

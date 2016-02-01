@@ -15,7 +15,11 @@ module.exports = function ( config ) {
 	            next();
 	        }
         };
-	    context.flow.subscribe(config.event, eh);
+        
+        var events = config.event.split(',');
+        events.forEach( function ( event ) {
+            context.flow.subscribe(event, eh);
+        });
 	    next();
     };
 };
