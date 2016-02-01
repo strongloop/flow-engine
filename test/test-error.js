@@ -44,6 +44,18 @@ describe('flowAndErrorHandler', function() {
 
     //A subflow in global error handler fails, and is recovered
     it('testRecoverTheSubflowErrorInGEH', testRecoverTheSubflowErrorInGEH);
+
+    //The error is re-thrown in the local error handler
+    it('testReThrowErrorInHandler', testReThrowErrorInHandler);
+
+    //A subflow's error handler is invoked and the subflow is resumed
+    it('testFlowErrorHandler', testFlowErrorHandler);
+
+    //A subflow's error handler is invoked but throws another error.
+    it('testErrorInFlowErrorHandler', testErrorInFlowErrorHandler);
+
+    //A policy's error handler is invoked but throws another error.
+    it('testErrorInPolicyErrorHandler', testErrorInPolicyErrorHandler);
   });
 
   //unhandled errors
@@ -555,3 +567,91 @@ function testUncaughtErrorInSubflow3(doneCB) {
     go(testRequest, middlewares);
 }
 
+function testReThrowErrorInHandler(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-error/testReThrowErrorInHandler.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'call': 'test-error/mod/call.js',
+            'append-code': 'test-error/mod/append-code.js'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/dummy')
+               .set('X-SHAPE-HDR', 'circle')
+               .expect(200, '|MT1|circle|GHC2', doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testFlowErrorHandler(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-error/testErrorInErrorHandler.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'call': 'test-error/mod/call.js',
+            'run-flow': 'test-error/mod/run-flow.js',
+            'append-code': 'test-error/mod/append-code.js'}};
+
+    //send a request and test the response
+    var expect = '|MT1|SF1T3|SF2T5|LH2DdT11|SF1T4|dynamic-subflow-S1(resumed)|MT2';
+    function testRequest() {
+        request.get('/dummy')
+               .set('X-SECRET-HDR', 'd')
+               .expect(200, expect, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testErrorInFlowErrorHandler(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-error/testErrorInErrorHandler.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'call': 'test-error/mod/call.js',
+            'run-flow': 'test-error/mod/run-flow.js',
+            'append-code': 'test-error/mod/append-code.js'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/dummy')
+               .set('X-SECRET-HDR', 'z')
+               .expect(200, '|MT1|SF1T3|SF2T5|LH1DT7|LH0D|MT2', doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testErrorInPolicyErrorHandler(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-error/testErrorInErrorHandler.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'call': 'test-error/mod/call.js',
+            'run-flow': 'test-error/mod/run-flow.js',
+            'append-code': 'test-error/mod/append-code.js'}};
+
+    //send a request and test the response
+    var expect = '|MT1|SF1T3|SF2T5|LH2DabcT9|LH1DT7|LH0D|MT2';
+    function testRequest() {
+        request.get('/dummy')
+               .set('X-SECRET-HDR', 'b')
+               .expect(200, expect, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}

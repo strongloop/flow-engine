@@ -1,0 +1,48 @@
+context:
+  shape: ${request.headers['x-shape-hdr']}
+
+assembly:
+  execute:
+    - append-code:
+        label: 'Body'
+        code: 'MT1'
+
+    - if:
+        condition: context.shape !== 'undefined'
+        execute:
+          - append-code:
+              label: 'Body'
+              code: '$(shape)'
+          - throw:
+              name: '$(shape)'
+        catch:
+          - default:
+              - throw:
+                  name: 'whatever'
+
+    - append-code:
+        label: 'Body'
+        code: 'MT3'
+
+  catch:
+      - errors:
+          - 'circle'
+          - 'square'
+          - 'rectangle'
+          - 'triangle'
+        execute:
+          - append-code:
+              label: 'Body'
+              code: 'GHC1'
+
+      - errors:
+          - 'whatever'
+        execute:
+          - append-code:
+              label: 'Body'
+              code: 'GHC2'
+
+      - default:
+          - append-code:
+              label: 'Body'
+              code: 'GHD'

@@ -1,0 +1,143 @@
+################################################################################
+# ///At the begining:
+# The subflow S1 comes with its own error handler L1 that can handle any error.
+# (Please note that the subflows invoked by the prebuilt-policies don't have
+# their own error handlers. Only the subflows invoked by the custom policy may
+# have their own error handlers. In other words, C1 must be a custom policy.)
+# The policy C2 in S1 got its own error handler L2 that can handle errors only
+# 'a', 'b', and 'c'. The second policy [x] in S2 may throw error at runtime.
+#
+#                       L0<*>
+# Main w/GEH<*>: [t1]--[C1]--[t2]-->
+#                       |
+#                       |        L2<a,b,c>
+#              S1/L1<*> +-[t3]--[C2]--[t4]-->
+#                                |
+#                             S2 +-[t5]--[x]--[t6]-->
+#                                       error=?
+#
+#
+################################################################################
+# /// flow error handler is invoked:
+# Case 1: when an error 'z' is thrown from S2, L2 can't handle the error while
+# the flow's error handler L1 can. So the subflows, S2 and S1, are popped (or
+# aborted) and L1 is pushed onto stack.
+#
+#                       L0<*>
+# Main w/GEH<*>: [t1]--[C1]--[t2]-->
+#                       |
+#                       |
+#                 L1_*: +-[t7]--[x]--[t8]-->
+#                              error=?
+#
+# What if another error is thrown from the L1? First, we need to check whether
+# the policy itself can handle the error or not. If not, pop L1 first, and then
+# try L0 and GEH.
+#
+################################################################################
+# /// policy error handler is invoked:
+# Case 2: when an error 'b' is thrown from S2, The policy error handler of C2,
+# 'L2', is invoked to handle errors.
+#
+#                       L0<*>
+# Main w/GEH<*>: [t1]--[C1]--[t2]-->
+#                       |
+#                       |        L2<a,b,c>
+#              S1/L1<*> +-[t3]--[C2]--[t4]-->
+#                                |
+#                          L2_b: +-[t9]--[x]--[t10]-->
+#                                       error=b
+#
+# What if error 'b' is re-thrown from the L2_b? First, we need to check whether
+# the policy itself can handle the error or not. If not, pop L2_b. Then we check
+# L1 instead of L2 here. Why not L2? Because the L2 has already invoked and
+# failed. So it is time check the L1. If L1 can handle the error, pop S1 and
+# push L1. Otherwise, check L0 and GEH.
+#
+context:
+  secret:  ${request.headers['x-secret-hdr']}
+
+assembly:
+  execute:
+    - append-code:
+        label: 'Body'
+        code: 'MT1'
+
+    - run-flow:
+        name: 'dynamic-subflow-S1'
+        theFlow:
+            execute:
+                - append-code:
+                    label: 'Body'
+                    code: 'SF1T3'
+
+                - call:
+                    name: 'subflow-S2'
+                    execute:
+                        - append-code:
+                            label: 'Body'
+                            code: 'SF2T5'
+
+                        - throw:
+                            name: $(secret)
+
+                        - append-code:
+                            label: 'Body'
+                            code: 'SF2T6'
+
+                    catch:
+                        - errors:
+                            - 'a'
+                            - 'b'
+                            - 'c'
+                          execute:
+                            - append-code:
+                                label: 'Body'
+                                code: 'LH2DabcT9'
+
+                            - throw:
+                                name: $(secret)
+
+                            - append-code:
+                                label: 'Body'
+                                code: 'LH2DabcT10'
+
+                        - errors:
+                            - 'd'
+                          execute:
+                            - append-code:
+                                label: 'Body'
+                                code: 'LH2DdT11'
+
+                - append-code:
+                    label: 'Body'
+                    code: 'SF1T4'
+
+            catch:
+                - default:
+                    - append-code:
+                        label: 'Body'
+                        code: 'LH1DT7'
+
+                    - throw:
+                        name: $(secret)
+
+                    - append-code:
+                        label: 'Body'
+                        code: 'LH1DT8'
+        catch:
+            - default:
+                - append-code:
+                    label: 'Body'
+                    code: 'LH0D'
+
+    - append-code:
+        label: 'Body'
+        code: 'MT2'
+
+  catch:
+    - default:
+        - append-code:
+            label: 'Body'
+            code: 'GHD'
+
