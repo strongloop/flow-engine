@@ -1,8 +1,28 @@
 'use strict';
-var startGateway = require('./util/start-gateway.js');
+var startGateway  = require('./util/start-gateway.js');
+var path          = require('path');
+var express       = require('express');
+var supertest     = require('supertest');
+var yaml          = require('yamljs');
+var Flow          = require('../index.js').Flow;
+var createContext = require('../index.js').createContext;
 
 //subscribe testcases:
 describe('flow.subscribe()', function() {
+    
+    //verify the START event
+    describe('START event', function() {
+        describe('single and multiple event handlers', function() {
+            it('next()',
+                    testSTARTEvent);
+            it('next(error)',
+                    testSTARTEventNextError);
+            it('next(error)',
+                    testSTARTEventThrowError);
+        });
+    });    
+    
+    
     //verify the FINISH event
     //1. 1 FINISH subscriber: the event handler calls next(error)
     //2. 1 FINISH subscriber: the event handler calls next()
@@ -142,31 +162,66 @@ describe('flow.subscribe()', function() {
     });
     
     //multiple-event subscriber
+    //1. 1 task subscribes multiple events
+    //2. 2 tasks subscribe multiple events
+    //3. subscribe the same event multiple times
+    //4. unsupported events
     describe('multiple events', function() {
         describe('1 task subscribes multiple events', function() {
             it('FINISH, pre:mytask and post:mytask',
                     testFINISHPrePostEventsNextError);
         });
+        describe('2 tasks subscribe multiple events', function() {
+            it('FINISH, pre:mytask and post:mytask',
+                    test2FINISHPrePostEventsNextError);
+            it('subscribe the same event multiple times',
+                    testSameEventsNextError);
+        });
+        describe('subscribe multiple unsupported events', function() {
+            it('fool, myevent, pre:myevent, post:myevent',
+                    testUnsupportedEvents);
+        });
     });
 });
 
+//unsubscribe testcases:
+describe('flow.unsubscribe()', function() {
+    describe('sub and then unsub', function() {
+        it('sub 2 and unsub 1',
+                testSub2Unsub1);
+        it('sub 2 and unsub the same one twice',
+                testSub2UnsubTwice);
+        it('sub 2 and unsub more then 2',
+                testSub2UnsubMore);
+    });
+    describe('multiple tasks unsubscribe', function() {
+        it('sub 2 and unsub 1',
+                testMultipleSub2Unsub1);
+        it('sub 2 and unsub the same one twice',
+                testMultipleSub2UnsubTwice);
+        it('sub 2 and unsub more then 2',
+                testMultipleSub2UnsubMore);
+    });
+});
 
 var request;
 function saveReq(req) {
     request = req;
 }
 
+function outputMiddleware(req, resp, next) {
+    //the verify-me is added into the context by the subscribe-xxx task
+    var code = req.context.get('verify-me');
+    
+    //write the secret-code to the response body
+    resp.writeHead(200, {'Content-Type': 'text/plain'});
+    resp.end(code ? code.toString() : 'undefined');
+    next();
+}
+
 //The middlewares running after the flow. They write the 'verify-me' to response
 var middlewares = [
-    function (req, resp, next) {
-        //the verify-me is added into the context by the subscribe-xxx task
-        var code = req.context.get('verify-me');
-
-        //write the secret-code to the response body
-        resp.writeHead(200, {'Content-Type': 'text/plain'});
-        resp.end(code ? code.toString() : 'undefined');
-        next();
-    }
+    outputMiddleware
 ];
 
 //The middlewares running after the flow. They write the 'verify-me' to response
@@ -182,6 +237,158 @@ var middlewaresWithErrorHandler = [
         next();
     }
 ];
+
+//for START event, need to create flow-engine manually
+var customMiddlewares = [
+    function (req, resp, next) {
+        req.context = createContext();
+        var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
+        var paramResolver = require(path.join(__dirname ,
+                'util/apim-param-resolver.js'))();
+        var tasks = {
+                  'mytask': require(__dirname + '/test-subscribe/mytask')
+                };
+        
+        var flow = new Flow(config, 
+                { 'paramResolver': paramResolver,
+                  'context' : req.context,
+                  'tasks': tasks});
+
+        flow.prepare(req.context, next);
+        req.context.set('req', req, true);
+        req.context.set('res', resp, true);
+        
+        flow.subscribe('START', function(context, next) {
+            req.context.set('verify-me', 'ok-start-1');
+            next();
+        });
+        flow.run();
+    },
+    outputMiddleware
+];
+
+var customMiddlewares2 = [
+    function (req, resp, next) {
+        req.context = createContext();
+        var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
+        var paramResolver = require(path.join(__dirname ,
+                'util/apim-param-resolver.js'))();
+        var tasks = {
+                  'mytask': require(__dirname + '/test-subscribe/mytask')
+                };
+        
+        var flow = new Flow(config, 
+                { 'paramResolver': paramResolver,
+                  'context' : req.context,
+                  'tasks': tasks});
+
+        flow.prepare(req.context, next);
+        req.context.set('req', req, true);
+        req.context.set('res', resp, true);
+        
+        flow.subscribe('START', function(context, next) {
+            req.context.set('verify-me', 'ok-start-1');
+            next(new Error('from START event'));
+        });
+        flow.run();        
+    },
+    outputMiddleware
+];
+
+var customMiddlewares3 = [
+    function (req, resp, next) {
+        req.context = createContext();
+        var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
+        var paramResolver = require(path.join(__dirname ,
+                'util/apim-param-resolver.js'))();
+        var tasks = {
+                      'mytask': require(__dirname + '/test-subscribe/mytask')
+                     };
+                              
+        var flow = new Flow(config, 
+                { 'paramResolver': paramResolver,
+                  'context' : req.context,
+                  'tasks': tasks});
+
+        flow.prepare(req.context, next);
+        req.context.set('req', req, true);
+        req.context.set('res', resp, true);
+                              
+        flow.subscribe('START', function(context, next) {
+                req.context.set('verify-me', 'ok-start-1');
+                throw new Error('from START event');
+        });
+        flow.run();        
+    },
+    outputMiddleware
+];
+
+function startCustomGateway(options, done) {
+    return function(next, middleware) {
+        var gatewayApp = express();
+        gatewayApp.all('/*', middleware);
+        gatewayApp.listen(0, function() {
+            var gatewayPort = this.address().port;
+            done(supertest('http://localhost:' + gatewayPort));
+            next();
+        });
+    };
+}
+
+//START event test cases
+function testSTARTEvent(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/subscribe-start.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subscribe': 'test-subscribe/subscribe'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/foo/bar').expect(200, /ok-start-1/, doneCB);
+    }
+
+    var go = startCustomGateway(flowOptions, saveReq);
+    go(testRequest, customMiddlewares);
+}
+
+function testSTARTEventNextError(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/subscribe-start.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subscribe': 'test-subscribe/subscribe'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/foo/bar').expect(200, /ok-start-1/, doneCB);
+    }
+
+    var go = startCustomGateway(flowOptions, saveReq);
+    go(testRequest, customMiddlewares2);
+}
+
+function testSTARTEventThrowError(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/subscribe-start.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subscribe': 'test-subscribe/subscribe'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/foo/bar').expect(200, /ok-start-1/, doneCB);
+    }
+
+    var go = startCustomGateway(flowOptions, saveReq);
+    go(testRequest, customMiddlewares3);
+}
 
 //FINISH event test cases
 function testFINISHEventNextError(doneCB) {
@@ -361,7 +568,8 @@ function test3FINISHEvents(doneCB) {
 
     //send a request and test the response
     function testRequest() {
-        request.get('/foo/bar').expect(200, /ev-error-3/, doneCB);
+        //one FINISH event is valid
+        request.get('/foo/bar').expect(200, /ev-error-1/, doneCB);
     }
 
     var go = startGateway(flowOptions, saveReq);
@@ -546,7 +754,8 @@ function test3ERROREvents(doneCB) {
 
     //send a request and test the response
     function testRequest() {
-        request.get('/foo/bar').expect(200, /ev-error-3/, doneCB);
+        //only ERROR event is valid
+        request.get('/foo/bar').expect(200, /ev-error-1/, doneCB);
     }
 
     var go = startGateway(flowOptions, saveReq);
@@ -919,6 +1128,187 @@ function testFINISHPrePostEventsNextError(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.get('/foo/bar').expect(200, /ev-error-3/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function test2FINISHPrePostEventsNextError(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/subscribe-multiple-events2.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subscribe': 'test-subscribe/subscribe-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //totally, 5 event handlers would be executed
+        request.get('/foo/bar').expect(200, /ev-error-5/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testSameEventsNextError(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/subscribe-multiple-events3.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subscribe': 'test-subscribe/subscribe-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //call sub 5 times, only 3 distinct events
+        request.get('/foo/bar').expect(200, /ev-error-3/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testUnsupportedEvents(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/subscribe-multiple-events4.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subscribe': 'test-subscribe/subscribe-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //unsupported events
+        request.get('/foo/bar').expect(200, /undefined/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+//unsubscribe test cases
+function testSub2Unsub1(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/unsubscribe.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subunsub' : 'test-subscribe/subunsub-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //sub 3 and then unsub 1 ==> 2
+        request.get('/foo/bar').expect(200, /ev-error-2/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testSub2UnsubTwice(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/unsubscribe2.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subunsub' : 'test-subscribe/subunsub-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //sub 3 and then unsub the same one twice ==> 2
+        request.get('/foo/bar').expect(200, /ev-error-2/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testSub2UnsubMore(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/unsubscribe3.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subunsub' : 'test-subscribe/subunsub-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //sub 3 and then unsub the same one twice ==> 2
+        request.get('/foo/bar').expect(200, /undefined/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testMultipleSub2Unsub1(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/unsubscribe-multiple.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subunsub' : 'test-subscribe/subunsub-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //sub 3 and then unsub 1 ==> 2 (* 2)
+        request.get('/foo/bar').expect(200, /ev-error-4/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testMultipleSub2UnsubTwice(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/unsubscribe-multiple2.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subunsub' : 'test-subscribe/subunsub-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //sub 3 and then unsub the same one twice ==> 2 (* 2)
+        request.get('/foo/bar').expect(200, /ev-error-4/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function testMultipleSub2UnsubMore(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-subscribe/unsubscribe3.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'subunsub' : 'test-subscribe/subunsub-counter',
+            'mytask'   : 'test-subscribe/mytask'}};
+
+    //send a request and test the response
+    function testRequest() {
+        //sub 3 and then unsub the same one twice ==> 2
+        request.get('/foo/bar').expect(200, /undefined/, doneCB);
     }
 
     var go = startGateway(flowOptions, saveReq);
