@@ -1,0 +1,7 @@
+assembly:
+  execute:
+    - subscribe:
+        event: pre:mytask
+        next-error: true
+    - throw:
+        name: 'on-purpose'

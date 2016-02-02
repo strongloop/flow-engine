@@ -1,0 +1,13 @@
+assembly:
+  execute:
+    - subscribe:
+        event: pre:ERROR
+        next-error: true
+    - subscribe:
+        event: ERROR
+        next-error: true
+    - subscribe:
+        event: post:ERROR
+        next-error: true
+    - throw:
+        name: 'on-purpose'

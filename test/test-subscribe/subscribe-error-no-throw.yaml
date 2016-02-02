@@ -1,0 +1,8 @@
+assembly:
+  execute:
+    - subscribe:
+        event: ERROR
+        next-error: false
+    - subscribe:
+        event: ERROR
+        next-error: true
