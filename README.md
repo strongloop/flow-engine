@@ -51,7 +51,17 @@ To use the FlowEngine, one must `require('flow-engine')`.
    Pass the `context` object and `next` function to the flow instance that you create by the Flow ctor
 
 - `Flow.prototype.run()`:    
-   start to execute the flow assembly
+   Start to execute the flow assembly
+
+- `Flow.prototype.subscribe(event, handler)`:    
+   Subscribe an event with an event handler. 
+   - event: 'START', 'FISNSH', 'ERROR' or 'pre|post:task-name'
+   - handler: a handler should be:  
+     `function(event, next)`  
+     A handler function would get the event name and a done callback(`next`). The handler must call `next()` when it finishes.
+
+- `Flow.prototype.unsubscribe(event, handler)`:    
+   Remove the handler from the event's subscriber list
 
 To execute a flow described in YAML:
 
@@ -86,6 +96,15 @@ which are attached to `context.flow`:
     - paramResolver: a function that is used to resolve the placeholder inside the flow assembly
     - tasks: an object that contains all custom task modules' name and handler function
     If these properties don't exist, the parent's will be used.
+- `subscribe(event, handler)`:    
+   Subscribe an event with an event handler. 
+   - event: 'START', 'FISNSH', 'ERROR' or 'pre|post:task-name'.
+   - handler: a handler should be:  
+     `function(event, next)`  
+     A handler function would get the event name and a done callback(`next`). The handler must call `next()` when it finishes.
+
+- `unsubscribe(event, handler)`:    
+   Remove the handler from the event's subscriber list
 
 #Sample
 
@@ -143,6 +162,15 @@ app.post('/*', [ flow ]);
       - no global error handling : use default error handling and then ends the flow
       - global error handling exists: execute the global error handling and then ends the flow
 
+### Event
+flow-engine supports observable interface and provides `subscribe()` and `unsubscribe()` APIs. Currently, the following events are supported:
+
+- START: flow-engine starts to execute an assembly and none of the policy is executed yet
+- FINISH: all of the policies in an assembly are executed successfully
+- ERROR: the flow execution ends with an error
+- 'pre|post:task-name': before or after the execution of a task/policy. The post event is **only** triggered when a task/policy finishes without any error, even if the 'catch' clause recovers the error.
+
+In order to keep the flow execution is clean, any error that is thrown/created by an event handler would only be logged and then ignored. Therefore, an event handler wouldn't impact the flow execution as well as other event handlers.
 
 ### The `context` object
 The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. The most important thing in the context for the flow-engine is the `request` object. Currently, flow-engine uses `context.req` to get request object. flow-engine also uses the `context` object as one of the arguments when invoking every task function. Some flow-engine related functions are attached to `context.flow`. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
