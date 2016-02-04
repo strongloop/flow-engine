@@ -1,5 +1,7 @@
 # flow-engine
 
+[![Build Status](https://apim-jenkins3.hursley.ibm.com/view/API%20Mesh%20Jobs/job/flow-engine/badge/icon)](https://apim-jenkins3.hursley.ibm.com/view/API%20Mesh%20Jobs/job/flow-engine/)
+
 FlowEngine can execute a series of tasks described using YAML, see example YAML below.
 
 ```
