@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = function (config) {
-    var label = config.label;
-    var code = config.code;
 
-    return function (context, next) {
+    return function (props, context, next) {
+        var label = props.label;
+        var code = props.code;
         var logger = context.get('logger');
         logger.info('[append-code] label=%s code=%s', label, code);
 
