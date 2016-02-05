@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = function ( config ) {
+module.exports = function (config) {
 
-    return function ( context, next ) {
+    return function (props, context, next) {
         var logger = context.get('logger');
         logger.info('execute subscribe-throw task');
         
@@ -11,11 +11,11 @@ module.exports = function ( config ) {
             context.set('verify-me', 'ev-throw-' + (count+1));
             throw new Error('throw error');
         };
-        var events = config.event.split(',');
-        events.forEach( function ( event ) {
+        var events = props.event.split(',');
+        events.forEach(function (event) {
             context.flow.subscribe(event, eh);
         });
-	    next();
+        next();
     };
 };
 

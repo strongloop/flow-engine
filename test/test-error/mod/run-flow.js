@@ -1,15 +1,15 @@
 'use strict';
 
 module.exports = function (config) {
-    return function (context, next) {
+    return function (props, context, next) {
         var logger = context.get('logger');
-        logger.info('[run-flow] invoke a subflow (name: %s)', config.name);
+        logger.info('[run-flow] invoke a subflow (name: %s)', props.name);
 
-        context.flow.invoke(config.theFlow, function() {
+        context.flow.invoke(props.theFlow, function() {
             logger.debug('[run-flow] done');
 
             var body = context.get('Body');
-            var v = (body ? body : '') + '|' + config.name + '(resumed)';
+            var v = (body ? body : '') + '|' + props.name + '(resumed)';
             context.set('Body', v);
 
             next();

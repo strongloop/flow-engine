@@ -1,26 +1,26 @@
 'use strict';
 
-module.exports = function ( config ) {
+module.exports = function (config) {
 
-    return function ( context, next ) {
+    return function (props, context, next) {
         var logger = context.get('logger');
         logger.info('execute subscribe task');
         var eh = function(event, next) {
-	        if (config['next-error']) {
-	            let count = getCount(context.get('verify-me'));
-	            context.set('verify-me', 'ev-error-' + (count+1));
-	            next(new Error('from subscribe-finish-counter'));
-	        } else {
-	            let count = getCount(context.get('verify-me'));
-	            context.set('verify-me', 'ev-ok-' + (count+1));
-	            next();
-	        }
+            if (props['next-error']) {
+                let count = getCount(context.get('verify-me'));
+                context.set('verify-me', 'ev-error-' + (count+1));
+                next(new Error('from subscribe-finish-counter'));
+            } else {
+                let count = getCount(context.get('verify-me'));
+                context.set('verify-me', 'ev-ok-' + (count+1));
+                next();
+            }
         };
-        var events = config.event.split(',');
+        var events = props.event.split(',');
         events.forEach( function ( event ) {
             context.flow.subscribe(event, eh);
         });
-	    next();
+        next();
     };
 };
 
