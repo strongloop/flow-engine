@@ -1,6 +1,6 @@
 {
   "name": "flow-engine",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A flow engine that is used to executed a series of tasks/policies",
   "main": "index.js",
   "scripts": {
