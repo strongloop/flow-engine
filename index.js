@@ -124,7 +124,7 @@ function loadTasks(tasks, baseDir) {
                         name);
                 continue;
             }
-            rev[name] = taskFunc;
+            rev[name] = taskFunc({});
         } catch (e) {
             logger.error('Failed to load the custom policy "%s": %s', name, e);
         }
