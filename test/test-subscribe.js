@@ -246,7 +246,7 @@ var customMiddlewares = [
         var paramResolver = require(path.join(__dirname ,
                 'util/apim-param-resolver.js'))();
         var tasks = {
-                  'mytask': require(__dirname + '/test-subscribe/mytask')
+                  'mytask': require(__dirname + '/test-subscribe/mytask')({})
                 };
         
         var flow = new Flow(config, 
@@ -274,7 +274,7 @@ var customMiddlewares2 = [
         var paramResolver = require(path.join(__dirname ,
                 'util/apim-param-resolver.js'))();
         var tasks = {
-                  'mytask': require(__dirname + '/test-subscribe/mytask')
+                  'mytask': require(__dirname + '/test-subscribe/mytask')({})
                 };
         
         var flow = new Flow(config, 
@@ -302,7 +302,7 @@ var customMiddlewares3 = [
         var paramResolver = require(path.join(__dirname ,
                 'util/apim-param-resolver.js'))();
         var tasks = {
-                      'mytask': require(__dirname + '/test-subscribe/mytask')
+                      'mytask': require(__dirname + '/test-subscribe/mytask')({})
                      };
                               
         var flow = new Flow(config, 
