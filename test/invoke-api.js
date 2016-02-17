@@ -52,6 +52,28 @@ describe('invoke-timeout', function() {
 
 });
 
+describe('invoke-error', function() {
+  var request;
+  before(
+    startGateway(
+      { flow: 'test/assembly-flow/flow-invoke-error.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname},
+      { callback: function(req, res) { // backend service
+        res.write(req.method + ' ' + req.path);
+        res.end();
+      },
+      },
+      function(req) {   // done
+        request = req;
+      }
+    ));
+
+  it('reverse proxy - POST ', function(done) {
+    request.post('/foo/bar').expect(500, /Error: connect ECONNREFUSED/, done);
+  });
+});
+
 describe('invoke-basic-auth', function() {
   var auth = require('http-auth');
 
