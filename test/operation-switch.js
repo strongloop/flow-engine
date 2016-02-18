@@ -15,6 +15,11 @@ describe('switch-on-operations', function() {
       }
     ));
 
+  it('create a new customer (verb+path)', function(done) {
+    request.post('/customer')
+           .expect(200, /A new customer is created./, done);
+  });
+
   it('create an order', function(done) {
     request.post('/order')
            .set('X-OP-TYPE', 'createOrder')
