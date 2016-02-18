@@ -7,7 +7,7 @@ module.exports = function (config) {
         var logger = context.get('logger');
         logger.info('[call] calling "%s" now', props.name);
 
-        context.flow.invoke(subflow, function() {
+        context._flow.invoke(subflow, function() {
             logger.info('[call] "%s" completed', props.name);
             next();
         });
