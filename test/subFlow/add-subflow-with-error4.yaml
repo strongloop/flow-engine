@@ -10,7 +10,7 @@ assembly:
                 - set-secret-code:
                     code : 666
                 - if:
-                    condition: context['set-secret-code'] == 666
+                    condition: "'$(set-secret-code)' === '666'"
                     execute:
                       - throw:
                           name: 'error-on-purpose2'

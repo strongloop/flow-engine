@@ -8,7 +8,7 @@ assembly:
         code: 'MT1'
 
     - if:
-        condition: context.shape !== 'undefined'
+        condition: shape !== 'undefined'
         execute:
           - append-code:
               label: 'Body'
