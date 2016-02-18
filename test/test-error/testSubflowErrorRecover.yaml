@@ -92,7 +92,7 @@ assembly:
                                 code: 'SF3T9'
 
                             - if:
-                                condition: context.secret2 !== 'undefined'
+                                condition: secret2 !== 'undefined'
                                 execute:
                                     - throw:
                                         name: $(secret2)
@@ -127,7 +127,7 @@ assembly:
                             code: 'LH1CeT11'
 
                         - if:
-                            condition: context.secret3 !== 'undefined'
+                            condition: secret3 !== 'undefined'
                             execute:
                                 - throw:
                                     name: $(secret3)
@@ -185,7 +185,7 @@ assembly:
                     code: 'SFG1T3'
 
                 - if:
-                    condition: context.secret4 !== 'undefined'
+                    condition: secret4 !== 'undefined'
                     execute:
                         - throw:
                             name: $(secret4)
