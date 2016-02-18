@@ -18,11 +18,11 @@ module.exports = function (config) {
         };
         var subevents = props['sub-event'].split(',');
         subevents.forEach(function (event) {
-            context.flow.subscribe(event, eh);
+            context._flow.subscribe(event, eh);
         });
         var unsubevents = props['unsub-event'].split(',');
         unsubevents.forEach(function (event) {
-            context.flow.unsubscribe(event, eh);
+            context._flow.unsubscribe(event, eh);
         });
         next();
     };

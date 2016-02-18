@@ -8,7 +8,7 @@ module.exports = function (config) {
         logger.info('execute addSubFlow task');
         logger.debug('addSubFlow:', JSON.stringify(subflow));
 
-        context.flow.invoke({ execute:subflow.execute}, function() {
+        context._flow.invoke({ execute:subflow.execute}, function() {
             logger.debug('addSubFlow finished');
             next();
         });

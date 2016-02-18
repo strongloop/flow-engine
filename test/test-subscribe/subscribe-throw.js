@@ -12,7 +12,7 @@ module.exports = function (config) {
         };
         var events = props.event.split(',');
         events.forEach(function (event) {
-            context.flow.subscribe(event, eh);
+            context._flow.subscribe(event, eh);
         });
         next();
     };

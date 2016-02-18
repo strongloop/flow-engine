@@ -87,7 +87,7 @@ flow.run();
 #APIs for Task developer
 A task is the unit of the flow assembly. flow-engine leverages tasks to fulfills
 a flow assembly. When developing a custom task, flow-engine provides the following APIs
-which are attached to `context.flow`:
+which are attached to `context._flow`:
 
 - `invoke(assembly, next, options)`:  
   flow-engine runs the given `assembly`. When the assembly finishes. the `next` callback
@@ -175,7 +175,7 @@ flow-engine supports observable interface and provides `subscribe()` and `unsubs
 In order to keep the flow execution is clean, any error that is thrown/created by an event handler would only be logged and then ignored. Therefore, an event handler wouldn't impact the flow execution as well as other event handlers.
 
 ### The `context` object
-The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. The most important thing in the context for the flow-engine is the `request` object. Currently, flow-engine uses `context.req` to get request object. flow-engine also uses the `context` object as one of the arguments when invoking every task function. Some flow-engine related functions are attached to `context.flow`. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
+The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. flow-engine uses the `context` object as one of the arguments when invoking every task function. Some flow-engine related functions are attached to `context._flow`. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
 
 Currently, flow-engine provides a context module in `./lib/context` which could be used to create the context object. It provides the following APIs:
 - createContext([namespace]):  

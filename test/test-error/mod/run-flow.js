@@ -5,7 +5,7 @@ module.exports = function (config) {
         var logger = context.get('logger');
         logger.info('[run-flow] invoke a subflow (name: %s)', props.name);
 
-        context.flow.invoke(props.theFlow, function() {
+        context._flow.invoke(props.theFlow, function() {
             logger.debug('[run-flow] done');
 
             var body = context.get('Body');
