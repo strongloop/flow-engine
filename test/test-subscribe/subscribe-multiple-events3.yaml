@@ -1,0 +1,7 @@
+assembly:
+  execute:
+    - subscribe:
+        event: pre:mytask,post:mytask,FINISH,pre:mytask,post:mytask
+        next-error: true
+    - mytask:
+        value: nothing

@@ -1,9 +1,9 @@
 'use strict';
 
-module.exports = function ( config ) {
-    var code = config.code;
+module.exports = function (config) {
 
-    return function ( context, next ) {
+    return function (props, context, next) {
+        var code = props.code;
         var logger = context.get('logger');
         logger.info('execute set-response-code task');
         logger.debug('code:', code);

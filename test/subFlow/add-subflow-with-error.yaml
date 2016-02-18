@@ -8,8 +8,8 @@ assembly:
                 - activity-log:
                     content: activity-log-2
                 - throw :
-                     value: "'error-on-purpose'"
+                     name: 'error-on-purpose'
             catch:
-                default:
+                - default:
                     - set-secret-code:
                         code : 888

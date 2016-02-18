@@ -1,5 +1,7 @@
 # flow-engine
 
+[![Build Status](https://apim-jenkins3.hursley.ibm.com/view/API%20Mesh%20Jobs/job/flow-engine/badge/icon)](https://apim-jenkins3.hursley.ibm.com/view/API%20Mesh%20Jobs/job/flow-engine/)
+
 FlowEngine can execute a series of tasks described using YAML, see example YAML below.
 
 ```
@@ -31,28 +33,37 @@ add it to the `lib/task` directory, and FlowEngine can execute it.
 #APIs
 To use the FlowEngine, one must `require('flow-engine')`.
 
-- setup function `require('flow-engine')(configObj)`
-  
+- setup function `require('flow-engine')(configObj)`:  
   configObj supports the follow options:
   - flow : the flow definition file and it shall be a YAML file
-  - paramResolver: a module's **location** that is used to resolve the placeholder inside the flow config
+  - paramResolver: a module's **location** that is used to resolve the placeholder inside the flow assembly
   - tasks: an object that contains all custom task modules' name and **location**
   - baseDir: the base directory that will be used to load modules
 
   and the return value is a middleware handler
   
-- `Flow(flowCfg, optionObj)`
-  Create a flow instance with the flowCfg which contains the flow's assembly
-  - flowCfg: the flow's assemble and it's JSON object
+- `Flow(assembly, optionObj)`:  
+  Create a flow instance with the flow assembly
+  - assembly: the flow's assembly and it's JSON object
   - optionObj: supports the following options:
-    - paramResolver: a function that is used to resolve the placeholder inside the flow config
+    - paramResolver: a function that is used to resolve the placeholder inside the flow assembly
     - tasks: an object that contains all custom task modules' name and handler function
 
-- `Flow.prototype.parepare(context, next)`
+- `Flow.prototype.parepare(context, next)`:  
    Pass the `context` object and `next` function to the flow instance that you create by the Flow ctor
 
-- `Flow.prototype.run()`
-   start to execute the assembly in the flow config
+- `Flow.prototype.run()`:    
+   Start to execute the flow assembly
+
+- `Flow.prototype.subscribe(event, handler)`:    
+   Subscribe an event with an event handler. 
+   - event: 'START', 'FISNSH', 'ERROR' or 'pre|post:task-name'
+   - handler: a handler should be:  
+     `function(event, next)`  
+     A handler function would get the event name and a done callback(`next`). The handler must call `next()` when it finishes.
+
+- `Flow.prototype.unsubscribe(event, handler)`:    
+   Remove the handler from the event's subscriber list
 
 To execute a flow described in YAML:
 
@@ -72,6 +83,30 @@ var flow = new Flow( json, optionObj );
 flow.prepare(context, next);
 flow.run();
 ```
+
+#APIs for Task developer
+A task is the unit of the flow assembly. flow-engine leverages tasks to fulfills
+a flow assembly. When developing a custom task, flow-engine provides the following APIs
+which are attached to `context.flow`:
+
+- `invoke(assembly, next, options)`:  
+  flow-engine runs the given `assembly`. When the assembly finishes. the `next` callback
+  will be invoked. the `options` here is the same as the options in `Flow(assembly, optionObj)`
+  - assembly: the flow's assembly and it's JSON object
+  - next: this callback will be invoked after the assembly finishes
+  - options: supports the following options:
+    - paramResolver: a function that is used to resolve the placeholder inside the flow assembly
+    - tasks: an object that contains all custom task modules' name and handler function
+    If these properties don't exist, the parent's will be used.
+- `subscribe(event, handler)`:    
+   Subscribe an event with an event handler. 
+   - event: 'START', 'FISNSH', 'ERROR' or 'pre|post:task-name'.
+   - handler: a handler should be:  
+     `function(event, next)`  
+     A handler function would get the event name and a done callback(`next`). The handler must call `next()` when it finishes.
+
+- `unsubscribe(event, handler)`:    
+   Remove the handler from the event's subscriber list
 
 #Sample
 
@@ -129,6 +164,56 @@ app.post('/*', [ flow ]);
       - no global error handling : use default error handling and then ends the flow
       - global error handling exists: execute the global error handling and then ends the flow
 
+### Event
+flow-engine supports observable interface and provides `subscribe()` and `unsubscribe()` APIs. Currently, the following events are supported:
+
+- START: flow-engine starts to execute an assembly and none of the policy is executed yet
+- FINISH: all of the policies in an assembly are executed successfully
+- ERROR: the flow execution ends with an error
+- 'pre|post:task-name': before or after the execution of a task/policy. The post event is **only** triggered when a task/policy finishes without any error, even if the 'catch' clause recovers the error.
+
+In order to keep the flow execution is clean, any error that is thrown/created by an event handler would only be logged and then ignored. Therefore, an event handler wouldn't impact the flow execution as well as other event handlers.
 
 ### The `context` object
 The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. The most important thing in the context for the flow-engine is the `request` object. Currently, flow-engine uses `context.req` to get request object. flow-engine also uses the `context` object as one of the arguments when invoking every task function. Some flow-engine related functions are attached to `context.flow`. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
+
+Currently, flow-engine provides a context module in `./lib/context` which could be used to create the context object. It provides the following APIs:
+- createContext([namespace]):  
+  create a context object with the specified namespace. namespace is optional.
+
+- The context object provides getter, setter and dot notation to access its variables:
+  - get(name):  
+    get the variable by name.
+
+  - set(name, value[, readOnly]):    
+    add or update a variable with the specified name and value. default value of readOnly is 'false'.
+    Use readonly=true to add read-only variable.  
+    Note: updating a read-only variable will cause the exception.
+
+  - define(name, getter[,setter, configurable]):
+    - `name`: variable name
+    - `getter`: getter function
+    - `setter`: setter function
+    - `configurable`: allow re-define or not. (true|false)
+
+    add or update a variable with the specified getter, setter and configurable.
+    Use configruable=false to avoid variable re-define.  
+    Note: set new value to a getter-only variable will cause the exception.
+
+  - dot notation:  
+    You can also use dot notation to access the variables of a context object.
+```javascript
+        //If a context is created with a namespace - 'fool', you can access its variables like this:    
+        var ctx1 = require('./lib/context').createContext('fool');
+        ctx1.set('myvar', 'value');
+        ctx1.fool.myvar === 'value';
+        ctx1.fool.myvar = 'new-value';
+        ctx1.get('myvar') === 'new-value';
+        //
+        //If there is no namepsace, then all of the variables are directly attached to the context object:
+        var ctx2 = require('./lib/context').createContext();
+        ctx2.set('myvar', 'value');
+        ctx2.myvar === 'value';
+        ctx2.myvar = 'new-value';
+        ctx2.get('myvar') === 'new-value';
+```

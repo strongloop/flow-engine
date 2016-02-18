@@ -5,38 +5,45 @@ var yaml      = require('yamljs');
 var createFlow = require('../../index.js');
 var createContext = require('../../index.js').createContext;
 
+require('events').EventEmitter.prototype._maxListeners = 100;
+
 
 module.exports = function() {
   if (arguments.length < 2) {
     throw new Error(
-            'Need at least 2 parameters to start Gateway. ' +
+            'Need at least 2 parameters to start Gateway.\n' +
             'Usage: startGateway(flow-options [, backend-options], done)');
   }
+
   var flowOptions = arguments[0];
   var backendOptions;
   var done;
   if (arguments.length === 2) {
     backendOptions = null;
     done = arguments[1];
-  } else {
+  }
+  else {
     backendOptions = arguments[1];
     done = arguments[2];
   }
 
   return function(next, middlewares) {
     var backendPort;
+
     function startGateway() {
       function flowMiddleware(request, response, next) {
         flowOptions.context = request.context;
         createFlow(flowOptions)(request, response, next);
       }
+
       var callbacks = [flowMiddleware];
       var config = yaml.load(flowOptions.flow);
       callbacks.unshift(function(request, response, next) {
         var context = createContext();
         context.set('target-host', 'localhost:' + backendPort);
         function _eval(m, g) {
-          return eval(g);// jshint ignore:line
+          /*jshint evil:true */
+          return eval(g);
         }
         if (config.context) {
           for (var key in config.context) {
@@ -52,11 +59,13 @@ module.exports = function() {
         request.context = context;
         next();
       });
+
       if ( middlewares && middlewares instanceof Array ) {
           middlewares.forEach(function(one) {
               callbacks.push(one);
           });
       }
+
       var gatewayApp = express();
       gatewayApp.all('/*', callbacks);
       gatewayApp.listen(0, function() {
@@ -72,12 +81,15 @@ module.exports = function() {
         if (backendOptions.middleware) {
           callbacks.unshift(backendOptions.middleware);
         }
+
         backendApp.all('/*', callbacks);
+
         backendApp.listen(0, function() {
           backendPort = this.address().port;
           startGateway();
         });
-    } else {
+    }
+    else {
       startGateway();
     }
   };

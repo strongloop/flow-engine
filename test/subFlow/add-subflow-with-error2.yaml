@@ -8,11 +8,11 @@ assembly:
                 - activity-log:
                     content: activity-log-2
                 - throw :
-                     value: "'error-on-purpose'"
+                     name: 'error-on-purpose'
             catch:
                 - errors:
-                    - context.error == 'error-on-purpose'
-                  execute: 
+                    - 'error-on-purpose'
+                  execute:
                     - set-secret-code:
                         code : 999
                 - default:

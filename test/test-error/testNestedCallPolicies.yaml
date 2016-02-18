@@ -1,0 +1,32 @@
+assembly:
+  execute:
+    - append-code:
+        label: 'Body'
+        code: 'MT1'
+
+    - call:
+        name: 'subflow-1'
+        execute:
+            - append-code:
+                label: 'Body'
+                code: 'SF1T1'
+
+            - call:
+                name: 'subflow-2'
+                execute:
+                    - append-code:
+                        label: 'Body'
+                        code: 'SF2T1'
+
+                    - append-code:
+                        label: 'Body'
+                        code: 'SF2T2'
+
+            - append-code:
+                label: 'Body'
+                code: 'SF1T3'
+
+    - append-code:
+        label: 'Body'
+        code: 'MT3'
+

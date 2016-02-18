@@ -1,0 +1,10 @@
+assembly:
+  execute:
+    - subscribe:
+        event: post:mytask
+        next-error: false
+    - subscribe:
+        event: post:mytask
+        next-error: false
+    - mytask:
+        value: nothing

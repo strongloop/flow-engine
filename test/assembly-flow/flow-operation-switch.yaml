@@ -4,7 +4,8 @@
 
 context:
   request.verb: ${request.method}
-  operation.id: ${request.headers['x-op-type']}
+  request.path : ${request.path}
+  api.operationId: ${request.headers['x-op-type']}
 
 assembly:
   execute:
@@ -16,6 +17,16 @@ assembly:
               - message-mediation:
                   target: context.response
                   value: "{ status: 200, message: 'A new order is created.' }"
+              - response:
+                  payload: context.response
+
+          - operations:
+              - verb: POST
+                path: /customer
+            execute:
+              - message-mediation:
+                  target: context.response
+                  value: "{ status: 200, message: 'A new customer is created.' }"
               - response:
                   payload: context.response
 
