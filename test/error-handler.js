@@ -15,11 +15,6 @@ describe('error-handlers', function() {
       }
     ));
 
-  it('no error', function(done) {
-    request.post('/dummy')
-           .expect(200, /OK/, done);
-  });
-
   it('recoverable error', function(done) {
     request.post('/dummy')
            .set('X-FOO-HDR', '50')
@@ -34,7 +29,7 @@ describe('error-handlers', function() {
 
   it('critical error', function(done) {
     request.get('/dummy')
-           .set('X-FOO-HDR', '800')
+           .set('X-FOO-HDR', '600')
            .expect(500, /Found a critical error./, done);
   });
 

@@ -14,8 +14,13 @@ const logger     = new (winston.Logger)({
     ]
 });
 
-//middleware ctor function
-//passing in the config file via options
+//The middleware ctor function. The configuration is setup via the options.
+//
+//The options object may have:
+//  - flow: the YAML file path
+//  - basedir: the working directory, for loading the other files.
+//  - tasks: the custom policies to be executed, usually they are pieces of
+//           javascript code.
 module.exports = function(options) {
     var config;
     var error;
@@ -27,28 +32,28 @@ module.exports = function(options) {
 
     //step 1: loading the assembly yaml
     try {
-        //TODO: this will be replaced by mplane later on
-        //read config file here
+        //read assembly file. TODO: this will be replaced by mplane later on
+        logger.debug('Loading the assembly file "%s"', options.flow);
         config = yaml.load(options.flow);
 
-        //watch the config file
+        //watch the assembly file
         fs.watchFile(options.flow, function (curr, prev) {
             //if file changes, reload it
             if ( curr.mtime > prev.mtime ) {
-                logger.info('The config file is changed. ' +
+                logger.info('The assembly file is changed. ' +
                     'Reload the file for the following requests.');
                 try {
                     config = yaml.load(options.flow);
                     error = undefined;
                 }
                 catch (e2) {
-                    logger.error('Failed to reload the config file: ' + e2);
+                    logger.error('Failed to reload the assembly file: %s', e2);
                     error = e2;
                 }
             }
         });
     } catch (e) {
-        logger.error('Failed to load the config file: ' + e);
+        logger.error('Failed to load the assembly file: %s', e);
         error = e;
     }
 
@@ -58,12 +63,16 @@ module.exports = function(options) {
         // TODO fix the issue of using '.' with path.join('.', 'someModule');
         //      Verify the test using mocha test case in test-flow.js
         // TODO paramResolver & task's base path must be the same???
-        paramResolver = require(
-                path.join((options.baseDir ? options.baseDir : '') ,
-                options.paramResolver))();
+        if (options.paramResolver) {
+            logger.debug('Loading the parameter resolver "%s"',
+                    options.paramResolver);
+            paramResolver = require(
+                    path.join((options.baseDir ? options.baseDir : '') ,
+                    options.paramResolver))();
+        }
     } catch (e) {
-        logger.error('Failed to load the paramResolver: ' + e);
-        logger.error('Continue the flow execution with no paramResolver');
+        logger.error('Failed to load the parameter resolver: %s', e);
+        logger.info('Continue the flow execution without a parameter resolver');
     }
 
     //step 3: loading tasks module if there is
@@ -77,7 +86,7 @@ module.exports = function(options) {
         if ( error ) {
             logger.info('Go to the error middleware');
 
-            //error with loading the config file. Go to the error middleware
+            //error with loading the assembly file. Go to the error middleware
             next(error);
         }
         else {
@@ -89,8 +98,12 @@ module.exports = function(options) {
                       'baseDir': options.baseDir,
                       'tasks': tasks,
                     });
+
+            //save the request, response on the created Context object first
             ctx.set('req', req, true);
             ctx.set('res', res, true);
+
+            //execute the flow with the Context object.
             flow.prepare(ctx, next);
             flow.run();
         }
@@ -100,18 +113,20 @@ module.exports = function(options) {
 function loadTasks(tasks, baseDir) {
     var rev = {};
     baseDir = baseDir || '';
-    for(let name in tasks) {
+    for (let name in tasks) {
         try {
+            logger.debug('Loading the custom policy "%s"', name);
             // TODO fix the issue of using '.' with path.join('.', 'someModule')
             //      Verify the test using mocha test case in test-flow.js
             let taskFunc = require(path.join(baseDir, tasks[name]));
             if ( !(taskFunc instanceof Function) ) {
-                logger.error('The module:', name, 'is not a Function, skipped');
+                logger.error('The "%s" policy is not a function. Skip it.',
+                        name);
                 continue;
             }
-            rev[name] = taskFunc;
+            rev[name] = taskFunc({});
         } catch (e) {
-            logger.error('failed to load task module:', name, e);
+            logger.error('Failed to load the custom policy "%s": %s', name, e);
         }
     }
     return rev;

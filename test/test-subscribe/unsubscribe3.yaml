@@ -1,0 +1,8 @@
+assembly:
+  execute:
+    - subunsub:
+        sub-event: pre:mytask,post:mytask,FINISH
+        unsub-event: pre:mytask,post:mytask,FINISH,ERROR,START
+        next-error: true
+    - mytask:
+        value: nothing

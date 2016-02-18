@@ -1,0 +1,227 @@
+################################################################################
+# the main flow
+################################################################################
+#
+#              L0 <a,b>
+# Main: [t1]--[C1]--[t2]--[x5]-->
+#              |
+#              |        L1 <c,d,e>
+#           S1 +-[t3]--[C2]--[t4]--[t5]-->
+#                       |
+#                       |
+#                    S2 +-[t6]--[C3]--[t7]>
+#                                |        L3 <f,g>
+#                             S3 +-[t8]--[x1]--[t9]--[x2]--[t10]-->
+#                                       error=?     error=?
+#
+#
+################################################################################
+# the case 'e' in local error handler L1
+################################################################################
+#
+#               LL0 <h>
+# L1_e: [t11]--[x3]--[t12]-->
+#             error=?
+#
+#
+################################################################################
+# the case 'p' in the global error handler
+################################################################################
+#
+# GH_p: [t1]--[C1]--[t2]-->
+#              |
+#              |        L1 <q,r>
+#           S1 +-[t3]--[C2]--[t4]-->
+#                       |
+#                    S2 +-[x4]--[t5]-->
+#                        error=?
+#
+#
+################################################################################
+#
+# * the only differences between this and testSubflowErrorRecover.yaml are:
+#   1. there is no default case in the global error handler
+#   2. this one got the secret5 in the end of main flow
+#
+context:
+  secret:  ${request.headers['x-secret-hdr']}
+  secret2: ${request.headers['x-secret2-hdr']}
+  secret3: ${request.headers['x-secret3-hdr']}
+  secret4: ${request.headers['x-secret4-hdr']}
+  secret5: ${request.headers['x-secret5-hdr']}
+
+assembly:
+  execute:
+    - append-code:
+        label: 'Body'
+        code: 'MT1'
+
+    - call:
+        name: 'subflow-1'
+        execute:
+            - append-code:
+                label: 'Body'
+                code: 'SF1T3'
+
+            - call:
+                name: 'subflow-2'
+                execute:
+                    - append-code:
+                        label: 'Body'
+                        code: 'SF2T6'
+
+                    - call:
+                        name: 'subflow-3'
+                        execute:
+                            - append-code:
+                                label: 'Body'
+                                code: 'SF3T8'
+
+                            - throw:
+                                name: $(secret)
+                                value: 'the secret'
+                                catch:
+                                    - errors:
+                                        - 'f'
+                                      execute:
+                                        - append-code:
+                                            label: 'Body'
+                                            code: 'LH3Cf'
+                                    - errors:
+                                        - 'g'
+                                      execute:
+                                        - append-code:
+                                            label: 'Body'
+                                            code: 'LH3Cg'
+
+                            - append-code:
+                                label: 'Body'
+                                code: 'SF3T9'
+
+                            - if:
+                                condition: context.secret2 !== 'undefined'
+                                execute:
+                                    - throw:
+                                        name: $(secret2)
+                                        value: 'the secret 2'
+
+                            - append-code:
+                                label: 'Body'
+                                code: 'SF3T10'
+
+                    - append-code:
+                        label: 'Body'
+                        code: 'SF2T7'
+
+                catch:
+                    - errors:
+                        - 'c'
+                      execute:
+                        - append-code:
+                            label: 'Body'
+                            code: 'LH1Cc'
+                    - errors:
+                        - 'd'
+                      execute:
+                        - append-code:
+                            label: 'Body'
+                            code: 'LH1Cd'
+                    - errors:
+                        - 'e'
+                      execute:
+                        - append-code:
+                            label: 'Body'
+                            code: 'LH1CeT11'
+
+                        - if:
+                            condition: context.secret3 !== 'undefined'
+                            execute:
+                                - throw:
+                                    name: $(secret3)
+                                    value: 'the secret 3'
+                            catch:
+                                - errors:
+                                    - 'h'
+                                  execute:
+                                    - append-code:
+                                        label: 'Body'
+                                        code: 'LL0Ch'
+
+                        - append-code:
+                            label: 'Body'
+                            code: 'LH1CeT12'
+
+            - append-code:
+                label: 'Body'
+                code: 'SF1T4'
+
+            - append-code:
+                label: 'Body'
+                code: 'SF1T5'
+        catch:
+            - errors:
+                - 'a'
+              execute:
+                - append-code:
+                    label: 'Body'
+                    code: 'LH0Ca'
+            - errors:
+                - 'b'
+              execute:
+                - append-code:
+                    label: 'Body'
+                    code: 'LH0Cb'
+
+    - append-code:
+        label: 'Body'
+        code: 'MT2'
+
+    - if:
+        condition: context.secret5 !== 'undefined'
+        execute:
+            - throw:
+                name: $(secret5)
+                value: 'the secret 5'
+
+  catch:
+    - errors:
+        - 'p'
+      execute:
+        - append-code:
+            label: 'Body'
+            code: 'GHCpT1'
+
+        - call:
+            name: 'subflow-in-global-1'
+            execute:
+                - append-code:
+                    label: 'Body'
+                    code: 'SFG1T3'
+
+                - if:
+                    condition: context.secret4 !== 'undefined'
+                    execute:
+                        - throw:
+                            name: $(secret4)
+                            value: 'the secret 4'
+
+                        - append-code:
+                            label: 'Body'
+                            code: 'SFG2T5'
+                    catch:
+                        - errors:
+                            - 'q'
+                            - 'r'
+                          execute:
+                            - append-code:
+                                label: 'Body'
+                                code: 'LHG1CqrT1'
+
+                - append-code:
+                    label: 'Body'
+                    code: 'SFG1T4'
+
+        - append-code:
+            label: 'Body'
+            code: 'GHCpT2'
+

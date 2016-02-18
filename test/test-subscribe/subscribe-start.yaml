@@ -1,0 +1,4 @@
+assembly:
+  execute:
+    - mytask:
+        value: nothing

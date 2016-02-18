@@ -1,9 +1,9 @@
 'use strict';
 
-module.exports = function ( config ) {
-    var subflow = config.subFlow;
+module.exports = function (config) {
 
-    return function ( context, next ) {
+    return function (props, context, next) {
+        var subflow = props.subFlow;
         var logger = context.get('logger');
         logger.info('execute addSubFlow task');
         logger.debug('addSubFlow:', JSON.stringify(subflow));
