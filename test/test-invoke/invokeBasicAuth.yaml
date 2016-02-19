@@ -1,0 +1,27 @@
+context:
+  request.verb: ${request.method}
+  request.path: ${request.path}
+
+assembly:
+  execute:
+    - operation-switch:
+        case:
+          - operations:
+              - verb: POST
+                path: /Good
+            execute:
+              - invoke:
+                  target-url: "http://$(target-host)/"
+                  verb: $(request.verb)
+                  username: admin
+                  password: smersh
+
+          - operations:
+              - verb: POST
+                path: /NG
+            execute:
+              - invoke:
+                  target-url: "http://$(target-host)/"
+                  verb: $(request.verb)
+                  username: guest
+                  password: test123

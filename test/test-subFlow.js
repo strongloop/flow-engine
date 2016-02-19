@@ -52,12 +52,12 @@ var middlewares = [
 function testNewlyAddedSubflow(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/subFlow/add-subflow.yaml',
+        flow: 'test/test-subFlow/add-subflow.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            'add-sub-flow': 'subFlow/add-sub-flow.js',
-            'set-secret-code': 'subFlow/set-secret-code.js'}};
+            'add-sub-flow': 'test-subFlow/add-sub-flow.js',
+            'set-secret-code': 'test-subFlow/set-secret-code.js'}};
 
     //send a request and test the response
     function testRequest() {
@@ -71,12 +71,12 @@ function testNewlyAddedSubflow(doneCB) {
 function testDefaultErrorPath(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/subFlow/add-subflow-with-error.yaml',
+        flow: 'test/test-subFlow/add-subflow-with-error.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            'add-sub-flow': 'subFlow/add-sub-flow.js',
-            'set-secret-code': 'subFlow/set-secret-code.js'}};
+            'add-sub-flow': 'test-subFlow/add-sub-flow.js',
+            'set-secret-code': 'test-subFlow/set-secret-code.js'}};
 
     //send a request and test the response
     function testRequest() {
@@ -90,12 +90,12 @@ function testDefaultErrorPath(doneCB) {
 function testSpecificErrorPath(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/subFlow/add-subflow-with-error2.yaml',
+        flow: 'test/test-subFlow/add-subflow-with-error2.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            'add-sub-flow': 'subFlow/add-sub-flow.js',
-            'set-secret-code': 'subFlow/set-secret-code.js'}};
+            'add-sub-flow': 'test-subFlow/add-sub-flow.js',
+            'set-secret-code': 'test-subFlow/set-secret-code.js'}};
 
     //send a request and test the response
     function testRequest() {
@@ -109,12 +109,12 @@ function testSpecificErrorPath(doneCB) {
 function testSpecificErrorFlowInTask(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/subFlow/add-subflow-with-error3.yaml',
+        flow: 'test/test-subFlow/add-subflow-with-error3.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            'add-sub-flow': 'subFlow/add-sub-flow.js',
-            'set-secret-code': 'subFlow/set-secret-code.js'}};
+            'add-sub-flow': 'test-subFlow/add-sub-flow.js',
+            'set-secret-code': 'test-subFlow/set-secret-code.js'}};
 
     //send a request and test the response
     function testRequest() {
@@ -128,12 +128,12 @@ function testSpecificErrorFlowInTask(doneCB) {
 function testSpecificErrorFlowInUpperFlow(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/subFlow/add-subflow-with-error4.yaml',
+        flow: 'test/test-subFlow/add-subflow-with-error4.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            'add-sub-flow': 'subFlow/add-sub-flow.js',
-            'set-secret-code': 'subFlow/set-secret-code.js'}};
+            'add-sub-flow': 'test-subFlow/add-sub-flow.js',
+            'set-secret-code': 'test-subFlow/set-secret-code.js'}};
 
     //send a request and test the response
     function testRequest() {
@@ -147,12 +147,12 @@ function testSpecificErrorFlowInUpperFlow(doneCB) {
 function testExecuteASubflowWithNoCatch(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/subFlow/add-subflow-with-error3.yaml',
+        flow: 'test/test-subFlow/add-subflow-with-error3.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            'add-sub-flow': 'subFlow/add-sub-flow2.js',
-            'set-secret-code': 'subFlow/set-secret-code.js'}};
+            'add-sub-flow': 'test-subFlow/add-sub-flow2.js',
+            'set-secret-code': 'test-subFlow/set-secret-code.js'}};
 
     //send a request and test the response
     function testRequest() {

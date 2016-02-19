@@ -1,6 +1,6 @@
 context:
   request.verb: ${request.method}
-  request.path: ${request.path.replace('/foo/', '')}
+  request.path: ${request.path}
 
 assembly:
   execute:

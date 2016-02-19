@@ -15,11 +15,9 @@ assembly:
           - errors:
               - 'code50'
             execute:
-              - message-mediation:
-                  target: context.response
-                  value: '{ status: 200, message: "The minor error is recovered." }'
-              - response:
-                  payload: context.response
+              - write-msg:
+                  statusCode: 200
+                  body: The minor error is recovered
 
           - errors:
               - 'code300'
@@ -38,19 +36,19 @@ assembly:
         - 'fault300'
         - 'fault400'
       execute:
-        - response:
-            payload: '{ status: 500, message: "Found a major error." }'
+        - write-msg:
+            statusCode: 500
+            body: Found a major error
 
     - errors:
         - 'fault500'
         - 'fault600'
       execute:
-        - response:
-            payload: '{ status: 500, message: "Found a critical error." }'
+        - write-msg:
+            statusCode: 500
+            body: Found a critical error
 
     - default:
-        - message-mediation:
-            target: context.response
-            value: '{ status: 500, message: "Unknown error." }'
-        - response:
-            payload: context.response
+        - write-msg:
+            statusCode: 500
+            body: Unknown error
