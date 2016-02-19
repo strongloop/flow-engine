@@ -75,6 +75,13 @@ describe('flowAndErrorHandler', function() {
     it('testUncaughtErrorInSubflow3', testUncaughtErrorInSubflow3);
   });
 
+  //some basic cases
+  describe('basics', function() {
+    it('testBasic1', testBasic1);
+    it('testBasic2', testBasic2);
+    it('testBasic3', testBasic3);
+  });
+
 });
 
 var request;
@@ -655,3 +662,82 @@ function testErrorInPolicyErrorHandler(doneCB) {
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
 }
+
+var basicMiddlewares = [
+function (req, res, next) {
+    var msg = req.context.message;
+    if (msg) {
+        res.writeHead(msg.statusCode, msg.headers);
+        res.end(msg.body);
+    }
+    next();
+},
+function (err, req, res, next) {
+    res.writeHead(500, {'Content-Type': 'text/json'});
+    res.end(JSON.stringify(req.context.error));
+    next();
+}]
+
+function testBasic1(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-error/testBasic.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            //reuse the module in the 'test-if/' directory
+            'write-msg': 'test-if/mod/write-msg.js'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.post('/dummy')
+           .set('X-FOO-HDR', '50')
+           .expect(200, /The minor error is recovered/, doneCB);
+    };
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, basicMiddlewares);
+}
+
+function testBasic2(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-error/testBasic.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            //reuse the module in the 'test-if/' directory
+            'write-msg': 'test-if/mod/write-msg.js'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.delete('/dummy')
+           .set('X-FOO-HDR', '300')
+           .expect(500, /Found a major error/, doneCB);
+    };
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, basicMiddlewares);
+}
+
+function testBasic3(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-error/testBasic.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            //reuse the module in the 'test-if/' directory
+            'write-msg': 'test-if/mod/write-msg.js'}};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/dummy')
+           .set('X-FOO-HDR', '600')
+           .expect(500, /Found a critical error/, doneCB);
+    };
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, basicMiddlewares);
+}
+

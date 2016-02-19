@@ -1,0 +1,42 @@
+# This file contains testcases for the 'operation-switch' policy. The
+# 'operation-switch' policy is used to test the operation and generate different
+# reponses accordingly.
+
+context:
+  request.verb: ${request.method}
+  request.path : ${request.path}
+  api.operationId: ${request.headers['x-op-type']}
+
+assembly:
+  execute:
+    - operation-switch:
+        case:
+          - operations:
+              - createOrder
+            execute:
+              - write-msg:
+                  statusCode: 200
+                  body: A new order is created
+
+          - operations:
+              - verb: POST
+                path: /customer
+            execute:
+              - write-msg:
+                  statusCode: 200
+                  body: A new customer is created
+
+          - operations:
+              - updateOrder
+            execute:
+              - write-msg:
+                  statusCode: 200
+                  body: The given order is updated
+
+          - operations:
+              - deleteOrder
+            execute:
+              - write-msg:
+                  statusCode: 500
+                  body: Deleting orders is not allowed
+

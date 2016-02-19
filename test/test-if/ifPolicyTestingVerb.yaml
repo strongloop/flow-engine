@@ -1,0 +1,26 @@
+# This file contains testcases for the 'if' policy. The 'if' policy is used to
+# test the request verb and generate different reponses accordingly.
+
+context:
+  request.verb: ${request.method}
+
+assembly:
+  execute:
+    - write-msg:
+        statusCode: 200
+        body: (unknown)
+
+    - if:
+        condition: "'$(request.verb)' === 'POST'"
+        execute:
+          - write-msg:
+              statusCode: 200
+              body: This is a POST message
+
+    - if:
+        condition: "'$(request.verb)' === 'GET'"
+        execute:
+          - write-msg:
+              statusCode: 200
+              body: This is a GET message
+
