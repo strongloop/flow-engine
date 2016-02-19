@@ -50,7 +50,7 @@ function switchOnVerbAndPath(doneCB) {
     function testRequest() {
         request.post('/customer')
             .expect(200, /A new customer is created/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -71,7 +71,7 @@ function switchOnOperationId1(doneCB) {
         request.post('/order')
            .set('X-OP-TYPE', 'createOrder')
            .expect(200, /A new order is created/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -92,7 +92,7 @@ function switchOnOperationId2(doneCB) {
         request.post('/order')
            .set('X-OP-TYPE', 'updateOrder')
            .expect(200, /The given order is updated/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -113,7 +113,7 @@ function switchOnOperationId3(doneCB) {
         request.delete('/order')
            .set('X-OP-TYPE', 'deleteOrder')
            .expect(500, /Deleting orders is not allowed/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -135,7 +135,7 @@ function switchNoCase(doneCB) {
         request.get('/order')
            .set('X-OP-TYPE', 'getOrder')
            .expect(500, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);

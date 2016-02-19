@@ -69,7 +69,7 @@ function invokePolicyReverseProxyPOST(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.post('/foo/bar').expect(200, /POST \/\?msg\=hello/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions,
             { callback: backendServer },
@@ -88,7 +88,7 @@ function invokePolicyReverseProxyGET(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.get('/foo/bar').expect(200, /GET \/\?msg\=hello/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions,
             { callback: backendServer },
@@ -98,6 +98,7 @@ function invokePolicyReverseProxyGET(doneCB) {
 
 //server takes 2 seconds to return while the timeout is set to 1
 function invokePolicyTimeout(doneCB) {
+    /* jshint validthis: true */
     this.timeout(5000);
     //the gateway options
     var flowOptions = {
@@ -109,7 +110,7 @@ function invokePolicyTimeout(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.post('/foo/timeout').expect(500, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions,
             { callback: backendServer2Sec },
@@ -130,7 +131,7 @@ function invokePolicyBadPort(doneCB) {
     function testRequest() {
         request.post('/foo/bar')
             .expect(500, /Error: connect ECONNREFUSED/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -147,7 +148,7 @@ function invokePolicyBasicAuthOK(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.post('/Good').expect(200, /basic auth works/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions,
             { callback: backendServerProtected,
@@ -168,7 +169,7 @@ function invokePolicyBasicAuthNG(doneCB) {
     function testRequest() {
         request.post('/NG')
             .expect(401, /Unauthorized/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions,
             { callback: backendServerProtected,

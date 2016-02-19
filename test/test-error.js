@@ -676,7 +676,7 @@ function (err, req, res, next) {
     res.writeHead(500, {'Content-Type': 'text/json'});
     res.end(JSON.stringify(req.context.error));
     next();
-}]
+}];
 
 function testBasic1(doneCB) {
     //the gateway options
@@ -693,7 +693,7 @@ function testBasic1(doneCB) {
         request.post('/dummy')
            .set('X-FOO-HDR', '50')
            .expect(200, /The minor error is recovered/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, basicMiddlewares);
@@ -714,7 +714,7 @@ function testBasic2(doneCB) {
         request.delete('/dummy')
            .set('X-FOO-HDR', '300')
            .expect(500, /Found a major error/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, basicMiddlewares);
@@ -735,7 +735,7 @@ function testBasic3(doneCB) {
         request.get('/dummy')
            .set('X-FOO-HDR', '600')
            .expect(500, /Found a critical error/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, basicMiddlewares);
