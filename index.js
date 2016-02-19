@@ -99,9 +99,8 @@ module.exports = function(options) {
                       'tasks': tasks,
                     });
 
-            //save the request, response on the created Context object first
-            ctx.set('req', req, true);
-            ctx.set('res', res, true);
+            //create the empty message on the context
+            ctx.set('message', {}, true);
 
             //execute the flow with the Context object.
             flow.prepare(ctx, next);

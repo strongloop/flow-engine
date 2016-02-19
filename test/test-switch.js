@@ -119,6 +119,7 @@ function switchOnOperationId3(doneCB) {
     go(testRequest, middlewares);
 }
 
+//Cannot Get /order
 function switchNoCase(doneCB) {
     //the gateway options
     var flowOptions = {
@@ -133,7 +134,7 @@ function switchNoCase(doneCB) {
     function testRequest() {
         request.get('/order')
            .set('X-OP-TYPE', 'getOrder')
-           .expect(404, /Cannot GET \/order/, doneCB);
+           .expect(500, doneCB);
     };
 
     var go = startGateway(flowOptions, saveReq);

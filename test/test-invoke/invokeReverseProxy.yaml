@@ -1,0 +1,9 @@
+context:
+  request.verb: ${request.method}
+
+assembly:
+  execute:
+    - invoke:
+        target-url: "http://$(target-host)?msg=hello"
+        verb: $(request.verb)
+        timeout: 10
