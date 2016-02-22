@@ -25,7 +25,7 @@ module.exports = function (config) {
         //got Code without Msg, then we'll give a default value
         if (!statusMsg && statusCode) {
             context.message.statusMessage =
-                (statusCode === 200 ? "OK" : "No Reason");
+                (statusCode === 200 ? 'OK' : 'No Reason');
         }
 
         logger.info('[write-msg] code=%d body=%s', statusCode, body);

@@ -46,7 +46,7 @@ function ifPolicyTestingVerbPOST(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.post('/dummy').expect(200, /POST message/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -64,7 +64,7 @@ function ifPolicyTestingVerbGET(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.get('/dummy').expect(200, /GET message/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -82,7 +82,7 @@ function ifPolicyTestingVerbDELETE(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.delete('/dummy').expect(200, /unknown/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
@@ -100,7 +100,7 @@ function ifPolicyTestingVerbHEAD(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.head('/dummy').expect(200, /$^/, doneCB);
-    };
+    }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
