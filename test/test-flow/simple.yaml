@@ -1,0 +1,24 @@
+context:
+  myval: 'foo'
+
+assembly:
+  execute:
+    - bad-policy:
+        name: foo
+        value: bar
+  catch:
+    - errors:
+        - 'next1'
+      execute:
+        - set-code:
+            value: 'next1'
+    - errors:
+        - 'next2'
+      execute:
+        - set-code:
+            value: 'next2'
+    - errors:
+        - 'next3'
+      execute:
+        - set-code:
+            value: 'next3'
