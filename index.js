@@ -2,17 +2,12 @@
 const fs         = require('fs');
 const path       = require('path');
 const yaml       = require('yamljs');
-const winston    = require('winston');
 const Flow       = require('./lib/flow').Flow;
 const context    = require('./lib/context');
 
-//TODO: create a logger for each flow instance
-const logger     = new (winston.Logger)({
-    transports: [
-        new (winston.transports.Console)(
-            {'timestamp': true, 'colorize': true, level: 'debug'})
-    ]
-});
+//This is for global level logging and only used in creating
+//a flow-engine middleware
+const logger     = require('./lib/flow')._gLogger;
 
 //The middleware ctor function. The configuration is setup via the options.
 //
