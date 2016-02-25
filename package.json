@@ -19,7 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "^1.5.2",
-    "winston": "^2.1.0",
+    "bunyan": "^1.7.0",
     "yamljs": "^0.2.4"
   },
   "devDependencies": {
