@@ -46,6 +46,43 @@ describe('context module', function() {
            should(ctx.get('fool')).be.a.undefined();
        });
     });
+   describe('set then del', function() {
+       it('should be able to del an object', function() {
+           var ctx = createContext();
+           var obj = {};
+           ctx.set('foo.bar', obj);
+           ctx.foo.bar.should.exactly(obj).and.be.a.Object();
+           ctx.del('foo.bar');
+           should(ctx.get('foo.bar')).exactly(undefined);
+           ctx.foo.should.not.ownProperty('bar');
+       });
+       it('should be able to del a string', function() {
+           var ctx = createContext();
+           var val = 'value';
+           ctx.set('foo', val);
+           ctx.foo.should.exactly(val).and.be.a.String();
+           ctx.del('foo');
+           should(ctx.get('foo')).exactly(undefined);
+           ctx.should.not.ownProperty('foo');
+       });
+       it('should get error when del readOnly props', function() {
+           var ctx = createContext();
+           var val = 'value';
+           ctx.set('foo', val, true);
+           ctx.foo.should.exactly(val).and.be.a.String();
+           should.throws(() => {
+               ctx.del('foo');
+           });
+       });
+       it('should be able to del top level props', function() {
+           var ctx = createContext();
+           var val = 'value';
+           ctx.set('foo.bar.my.value', val);
+           ctx.foo.bar.my.value.should.exactly(val).and.be.a.String();
+           ctx.del('foo');
+           ctx.should.not.ownProperty('foo');
+       });
+    });
    describe('use dot notation to set then get', function() {
        it('should get original object when set an object', function() {
            var ctx = createContext();
@@ -198,6 +235,53 @@ describe('context module', function() {
            ctx.fool.should.exactly('value').and.be.a.String();
            should.throws(function () {
                ctx.fool = 'new-value';
+           });
+       });
+    });
+
+   describe('subscribe event', function() {
+       it('should be notified if subscribe a specific event', function(done) {
+           var ctx = createContext();
+           ctx.set('fool', 'bar', true);
+
+           ctx.subscribe('post-process', function(event, next) {
+               ctx.set('post-process', 'done');
+               next();
+           });
+
+           ctx.notify('post-process', function(errors) {
+               should(ctx.get('post-process')).exactly('done');
+               should(errors).be.a.Undefined();
+               done();
+           });
+       });
+
+       it('should be able to get all errors in done callback', function(done) {
+           var ctx = createContext();
+           ctx.set('fool', 'bar', true);
+
+           ctx.subscribe('post-process', function(event, next) {
+               ctx.set('post-process1', 'done');
+               next();
+           });
+
+           ctx.subscribe('post-process', function(event, next) {
+               ctx.set('post-process2', 'done');
+               next({code:400});
+           });
+
+           ctx.subscribe('post-process', function(event, next) {
+               ctx.set('post-process3', 'done');
+               next({code:500});
+           });
+
+           ctx.notify('post-process', function(errors) {
+               should(ctx.get('post-process1')).exactly('done');
+               should(ctx.get('post-process2')).exactly('done');
+               should(ctx.get('post-process3')).exactly('done');
+               should(errors).be.a.Array();
+               should(errors.length).exactly(2);
+               done();
            });
        });
     });
