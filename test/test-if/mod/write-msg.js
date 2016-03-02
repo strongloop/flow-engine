@@ -2,8 +2,8 @@
 
 module.exports = function (config) {
 
-    return function (props, context, next) {
-        var logger = context.get('logger');
+    return function (props, context, flow) {
+        var logger = flow.logger;
 
         var statusCode = props.statusCode;
         var statusMsg = props.statusMsg;
@@ -29,6 +29,6 @@ module.exports = function (config) {
         }
 
         logger.info('[write-msg] code=%d body=%s', statusCode, body);
-        next();
+        flow.proceed();
     };
 };

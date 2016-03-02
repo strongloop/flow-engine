@@ -2,14 +2,14 @@
 
 module.exports = function (config) {
 
-    return function (props, context, next) {
+    return function (props, context, flow) {
         var subflow = { 'execute': props.execute };
-        var logger = context.get('logger');
+        var logger = flow.logger;
         logger.info('[call] calling "%s" now', props.name);
 
-        context._flow.invoke(subflow, function() {
+        flow.invoke(subflow, function() {
             logger.info('[call] "%s" completed', props.name);
-            next();
+            flow.proceed();
         });
     };
 };

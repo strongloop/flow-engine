@@ -1,0 +1,13 @@
+context:
+  myval: 'foo'
+
+assembly:
+  execute:
+    - mypolicy:
+        name: foo
+        value: bar
+        stop: true
+    - mypolicy:
+        name: foo
+        value: bar2
+        stop: false

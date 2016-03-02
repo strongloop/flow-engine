@@ -2,6 +2,7 @@
 const createContext = require('../lib/context').createContext;
 const Flow          = require('../lib/flow').Flow;
 const yaml          = require('yamljs');
+const should        = require('should');
 
 function createFlow(assembly, tasks, paramResolver, done) {
 
@@ -41,6 +42,18 @@ describe('policy execution', () => {
                            done();
                        });
            });
+       });
+    });
+
+   describe('flow stop', () => {
+       it('should stop flow after first policy', (done) => {
+           var ctx = createFlow(__dirname + '/test-flow/flow-stop.yaml',
+                   {'mypolicy': __dirname + '/test-flow/mypolicy'},
+                   __dirname + '/util/apim-param-resolver',
+                   () => {
+                       should(ctx.get('foo')).exactly('bar');
+                       done();
+                   });
        });
     });
 });

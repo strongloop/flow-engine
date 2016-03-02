@@ -1,16 +1,16 @@
 'use strict';
 
 module.exports = function (config) {
-    return function (props, context, next) {
-        var logger = context.get('logger');
+    return function (props, context, flow) {
+        var logger = flow.logger;
         logger.info('ENTER bad policy');
         logger.info('call next first time');
-        next({'name': 'next1', 'value':'foo'});
+        flow.fail({'name': 'next1', 'value':'foo'});
         logger.info('call next second time');
-        next({'name': 'next2', 'value':'foo'});
+        flow.fail({'name': 'next2', 'value':'foo'});
         setTimeout(()=>{
             logger.info('call next third time');
-            next({'name': 'next3', 'value':'foo'});
+            flow.fail({'name': 'next3', 'value':'foo'});
         }, 0);
     };
 };
