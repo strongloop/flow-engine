@@ -2,10 +2,10 @@
 
 module.exports = function (config) {
 
-    return function (props, context, next) {
-        var logger = context.get('logger');
+    return function (props, context, flow) {
+        var logger = flow.logger;
         logger.info('execute subscribe-throw task');
-        
+
         var eh = function(event, next) {
             var count = getCount(context.get('verify-me'));
             context.set('verify-me', 'ev-throw-' + (count+1));
@@ -13,9 +13,9 @@ module.exports = function (config) {
         };
         var events = props.event.split(',');
         events.forEach(function (event) {
-            context._flow.subscribe(event, eh);
+            flow.subscribe(event, eh);
         });
-        next();
+        flow.proceed();
     };
 };
 

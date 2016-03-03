@@ -2,15 +2,15 @@
 
 module.exports = function (config) {
 
-    return function (props, context, next) {
+    return function (props, context, flow) {
         var subflow = props.subFlow;
-        var logger = context.get('logger');
+        var logger = flow.logger;
         logger.info('execute addSubFlow task');
         logger.debug('addSubFlow:', JSON.stringify(subflow));
 
-        context._flow.invoke(subflow, function() {
+        flow.invoke(subflow, function() {
             logger.debug('addSubFlow finished');
-            next();
+            flow.proceed();
         });
     };
 };

@@ -2,9 +2,9 @@
 
 module.exports = function (config) {
 
-    return function (props, context, next) {
-        var logger = context.get('logger');
+    return function (props, context, flow) {
+        var logger = flow.logger;
         logger.info('execute mytask task');
-        next();
+        flow.proceed();
     };
 };
