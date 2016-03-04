@@ -2,7 +2,7 @@
 const fs         = require('fs');
 const path       = require('path');
 const yaml       = require('yamljs');
-const Flow       = require('./lib/flow').Flow;
+const flow       = require('./lib/flow');
 const context    = require('./lib/context');
 
 //This is for global level logging and only used in creating
@@ -88,7 +88,7 @@ module.exports = function(options) {
             logger.info('Invoke the Flow middleware');
 
             //start to run the flow engine
-            var flow = new Flow(config,
+            let flowObj = new flow.Flow(config,
                     { 'paramResolver': paramResolver,
                       'baseDir': options.baseDir,
                       'tasks': tasks,
@@ -98,8 +98,8 @@ module.exports = function(options) {
             ctx.set('message', {}, true);
 
             //execute the flow with the Context object.
-            flow.prepare(ctx, next);
-            flow.run();
+            flowObj.prepare(ctx, next);
+            flowObj.run();
         }
     };
 };
@@ -126,5 +126,6 @@ function loadTasks(tasks, baseDir) {
     return rev;
 }
 
-module.exports.Flow = Flow;
+module.exports.Flow = flow.Flow;
 module.exports.createContext = context.createContext;
+module.exports.tid = flow.tid;
