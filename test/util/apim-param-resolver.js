@@ -1,8 +1,6 @@
-var util = require('util');
-
 module.exports = function() {
   return function(context, name, value) {
-    if (util.isString(value))
+    if (typeof value === 'string')
       return value.replace(/\$\(([^)]+)\)/gm, function(m, g1) {
           return context.get(g1);
       });

@@ -1,8 +1,8 @@
 'use strict';
-const createContext = require('../lib/context').createContext;
-const Flow          = require('../lib/flow').Flow;
-const yaml          = require('yamljs');
-const should        = require('should');
+var createContext = require('../lib/context').createContext;
+var Flow          = require('../lib/flow').Flow;
+var yaml          = require('yamljs');
+var should        = require('should');
 
 function createFlow(assembly, tasks, paramResolver, done) {
 
@@ -16,7 +16,7 @@ function createFlow(assembly, tasks, paramResolver, done) {
     }
 
     var taskHandlers = {};
-    for(let task in tasks) {
+    for(var task in tasks) {
         taskHandlers[task] = require(tasks[task])({});
     }
 
@@ -29,28 +29,28 @@ function createFlow(assembly, tasks, paramResolver, done) {
     return ctx;
 }
 
-describe('policy execution', () => {
-   describe('bugs', () => {
-       describe('issue 35', () => {
-           it('should be no-op when call next twice', (done) => {
+describe('policy execution', function() {
+   describe('bugs', function() {
+       describe('issue 35', function() {
+           it('should be no-op when call next twice', function(done) {
                createFlow(__dirname + '/test-flow/simple.yaml',
                        {'bad-policy': __dirname + '/test-flow/bad-policy',
                         'set-code': __dirname + '/test-flow/set-code'
                        },
                        __dirname + '/util/apim-param-resolver',
-                       () => {
+                       function() {
                            done();
                        });
            });
        });
     });
 
-   describe('flow stop', () => {
-       it('should stop flow after first policy', (done) => {
+   describe('flow stop', function() {
+       it('should stop flow after first policy', function(done) {
            var ctx = createFlow(__dirname + '/test-flow/flow-stop.yaml',
                    {'mypolicy': __dirname + '/test-flow/mypolicy'},
                    __dirname + '/util/apim-param-resolver',
-                   () => {
+                   function() {
                        should(ctx.get('foo')).exactly('bar');
                        done();
                    });

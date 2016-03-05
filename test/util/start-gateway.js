@@ -1,4 +1,3 @@
-var util = require('util');
 var express   = require('express');
 var supertest = require('supertest');
 var yaml      = require('yamljs');
@@ -49,7 +48,7 @@ module.exports = function() {
           for (var key in config.context) {
             if (config.context.hasOwnProperty(key)) {
               var value = config.context[key];
-              if (util.isString(value)) {
+              if (typeof value === 'string') {
                 value = value.replace(/\$\{([^}]+)\}/, _eval);
               }
               context.set(key, value);

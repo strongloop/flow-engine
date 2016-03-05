@@ -1,13 +1,13 @@
 'use strict';
-const fs         = require('fs');
-const path       = require('path');
-const yaml       = require('yamljs');
-const flow       = require('./lib/flow');
-const context    = require('./lib/context');
+var fs         = require('fs');
+var path       = require('path');
+var yaml       = require('yamljs');
+var flow       = require('./lib/flow');
+var context    = require('./lib/context');
 
 //This is for global level logging and only used in creating
 //a flow-engine middleware
-const logger     = require('./lib/flow')._gLogger;
+var logger     = require('./lib/flow')._gLogger;
 
 //The middleware ctor function. The configuration is setup via the options.
 //
@@ -88,7 +88,7 @@ module.exports = function(options) {
             logger.info('Invoke the Flow middleware');
 
             //start to run the flow engine
-            let flowObj = new flow.Flow(config,
+            var flowObj = new flow.Flow(config,
                     { 'paramResolver': paramResolver,
                       'baseDir': options.baseDir,
                       'tasks': tasks,
@@ -107,12 +107,12 @@ module.exports = function(options) {
 function loadTasks(tasks, baseDir) {
     var rev = {};
     baseDir = baseDir || '';
-    for (let name in tasks) {
+    for (var name in tasks) {
         try {
             logger.debug('Loading the custom policy "%s"', name);
             // TODO fix the issue of using '.' with path.join('.', 'someModule')
             //      Verify the test using mocha test case in test-flow.js
-            let taskFunc = require(path.join(baseDir, tasks[name]));
+            var taskFunc = require(path.join(baseDir, tasks[name]));
             if ( !(taskFunc instanceof Function) ) {
                 logger.error('The "%s" policy is not a function. Skip it.',
                         name);

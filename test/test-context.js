@@ -1,6 +1,6 @@
 'use strict';
-const createContext = require('../index.js').createContext;
-const should        = require('should');
+var createContext = require('../index.js').createContext;
+var should        = require('should');
 
 describe('context module', function() {
    describe('createContext', function() {
@@ -70,7 +70,7 @@ describe('context module', function() {
            var val = 'value';
            ctx.set('foo', val, true);
            ctx.foo.should.exactly(val).and.be.a.String();
-           should.throws(() => {
+           should.throws(function() {
                ctx.del('foo');
            });
        });
