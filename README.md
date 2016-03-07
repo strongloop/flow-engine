@@ -47,7 +47,10 @@ To use the FlowEngine, one must `require('flow-engine')`.
   - assembly: the flow's assembly and it's JSON object
   - optionObj: supports the following options:
     - paramResolver: a function that is used to resolve the placeholder inside the flow assembly
-    - tasks: an object that contains all custom task modules' name and handler function
+    - tasks: an object that contains all custom task modules' name and their handler functions. Use this option to control the creattion/lifecycle of task handlers by yourself. 
+    - tid: transaction id. if it doesn't present, flow-engine uses tid() to get tid that is maintained in flow-engine's scope.
+    - logger: a bunyan logger obj that flow-engine uses it for logging. if it doesn't present, flow-engine creates its own logger.
+    - logLevel: flow-engine uses it to create its own logger if `logger` is not there.
 
 - `Flow.prototype.parepare(context, next)`:  
    Pass the `context` object and `next` function to the flow instance that you create by the Flow ctor
@@ -64,6 +67,9 @@ To use the FlowEngine, one must `require('flow-engine')`.
 
 - `Flow.prototype.unsubscribe(event, handler)`:    
    Remove the handler from the event's subscriber list
+
+- `tid()`:    
+   get a flow-engine scope transaction Id. Basically, it's an globl counter that start with 1 and increase 1 by each call.
 
 To execute a flow described in YAML:
 
@@ -86,10 +92,9 @@ flow.run();
 
 #APIs for Task developer
 A task is the unit of the flow assembly. flow-engine leverages tasks to fulfills
-a flow assembly. When developing a custom task, flow-engine provides the following APIs
-which are attached to `context._flow`:
+a flow assembly. When developing a custom task, flow-engine provides the following APIs:
 
-- `invoke(assembly, next, options)`:  
+- `invoke(assembly, options, next)`:  
   flow-engine runs the given `assembly`. When the assembly finishes. the `next` callback
   will be invoked. the `options` here is the same as the options in `Flow(assembly, optionObj)`
   - assembly: the flow's assembly and it's JSON object
@@ -108,8 +113,44 @@ which are attached to `context._flow`:
 - `unsubscribe(event, handler)`:    
    Remove the handler from the event's subscriber list
 
-#Sample
+- `proceed()`:    
+   When a task finishes its job, it must call this API to tell flow-engine to run the next task.
 
+- `fail(error)`:    
+   When a task finishes its job with error situation, it must call this API to tell flow-engine to run the Error handing to process the error.
+
+- `stop()`:    
+   When a task finishes its job and the flow should also end, it must call thsi API to tell flow-engine to finish the assembly execution.
+
+- `logger`:    
+   A bunyan logger object which is used for logging.
+
+These APIs are attached to the third param of task handler interface and could be used by task developer. Here is a simple task implementation:
+
+```
+'use strict';
+
+module.exports = function ( config ) {
+
+    return function (props, context, flow) {
+        var logger = flow.logger;
+        logger.info('ENTER mypolicy, params:', JSON.stringify(props));
+        //some business logic
+        
+        //and register a FINISH event handler
+        flow.subscribe('FINISH', function(event, next) {
+            //this would be executed when a flow finishes
+            next();
+        });
+        
+        //call next task
+        flow.proceed();
+    };
+};
+```
+
+#Sample
+Use the setup function to create a flow-engine middleware and register this middleware to handle all of the requests:
 ```
 var createFlow = require('flow-engine');
 
@@ -117,9 +158,10 @@ var flow = createFlow({
         flow: "flow.yaml",
         tasks: {'activity-log': './myactivity-log.js'},
         baseDir: __dirname});
-         
+
 var app = express();
 app.post('/*', [ flow ]);
+
 ```
 
 #The Design
@@ -132,27 +174,34 @@ app.post('/*', [ flow ]);
   middlewareHandler(request, response, next);
   ```
 
-### The Task interface
-- Every task that is defined inside the config should have a corresponding task module. And the task module should provide setup function and return a task function - `function(context, next)`
+### The Task(aka policy) interface
+- Every task that is defined inside the assembly should have a corresponding task module. And the task module should provide a factory function - `function(config)` and return a task handler function - `function(props, context, flow)`. Therefore, flow-engine will use the task module like this:
 
   ```
   var taskHandler = require('taskModule')(task_config);
-  taskHandler(context, next);
+  taskHandler(props, context, flow);
   ```
-- **The taks module loading procedure**:
+  
+- **Finding task handlers to execute the tasks that defined in the assembly**:
+  - tasks under `<flow-engine>/lib/task` are loaded when require('flow-engine'). flow-engine calls these tasks' factory functions with empty config object and keeps the returned task handler functions
   - use task's name to search the task module and see if there is a task module under options.tasks[taskName].
     The options.tasks here is the options that you pass to Flow's constructor or the setup function.
-    The difference is the options.tasks that you pass to the setup function will be processed via the `require()` and each task will turn into a module function. And the options.tasks that you pass to Flow's constructor function shall be module functions already.
-  - searching the task module under ./lib/task/ inside the flow-engine's directory.
-  - diretcly use `require` against the task's name.
+    The difference is the options.tasks that you pass to the setup function will be processed via the `require()`, call its factory function by passing empty config object and get the task handler function. And the options.tasks that you pass to Flow's constructor function shall be task handler functions already.
+  - searching the task module under `<flow-engine>/lib/task.
+  - diretcly use `require` against the task's name, call its factory function with empty config and get the handler function
 
 - **Execute a task**:
-  - use the `task module loading procedure` above to get task's setup function
+  - use the `Finding task handlers procedure` above to get task's handler function
   - get the properties/values that defined in the assemble for the task and use paramResolver to replace the placeholder into corresponding value if there is
-  - pass the properties/values above into the task's setup function: `function (config)`. Then a task function should return: `function(context, next)`
-  - call the function we get from previous step and pass the context obj and next function into it. the `next` here is a callback function that is created by the flow, not the one strong-gateway passes to the flow.
-  - when the `next` callback is invoked, the flow engine determinate if there is an error by checking the first argument.
-    - if the first argument presents, the flow engine will perform the `Error Handling` procedure
+  - call the task handler function we get from step 1 and pass the properties/values, context obj and flow obj into it. the `flow` here is a object which contains a set of APIs:
+    - .proceed(): when a task finishes its job successfully, it must call this function to tell flow-engine that its job is done, please continue with next task
+    - .fail(error): when a task couldn't finish it job, it must call this function to tell flow-engine that an error is found and ask flow-enigne to handle the error. flow-engine will perform the `Error Handling` precedure then.
+    - .subscribe(event, cb): a task could subscribe some specific events. flow-engine would invoke the `cb` when the specific events are triggered. The `cb` shall be a `function(event, next)`. Inside the callback, next() must be called when the callback finishes. Currently, the following events are supported:
+      - FINISH: a flow finishes. flow-engine finishes an assembly execution
+      - ERROR: an error is threw from an assembly execution
+      - pre|post:taskName: before or after a task's exeuction
+    - .unsubscribe(event, cb): unsubscribe an event
+    - .logger: a bunyan logger object and could be used for logging
   - if the task finishes without any error, then the flow engine goes to the next task
 
 - **Error Handling**:
@@ -174,8 +223,10 @@ flow-engine supports observable interface and provides `subscribe()` and `unsubs
 
 In order to keep the flow execution is clean, any error that is thrown/created by an event handler would only be logged and then ignored. Therefore, an event handler wouldn't impact the flow execution as well as other event handlers.
 
+You can access the `subscribe()` and `unsubscribe()` from a Flow instance if you use the Flow ctor to create a flow instance. In side a task, the third param of the task handler function is an flow object which contains `subscribe()` and `unsubscribe()` APIs.
+
 ### The `context` object
-The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. flow-engine uses the `context` object as one of the arguments when invoking every task function. Some flow-engine related functions are attached to `context._flow`. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
+The `context` object should be created before the flow-engine, probably by using a context middleware before the flow-engine middleware. flow-engine uses the `context` object as one of the arguments when invoking every task function. A task could access `context` object, including retrieving and populating properties. When flow-engine finishes, all the information should be stored into the `context` object. Having a middleware after the flow-engine middleware is a typical approach to produce the output content and maybe flush/write to the response object at the same time. 
 
 Currently, flow-engine provides a context module in `./lib/context` which could be used to create the context object. It provides the following APIs:
 - createContext([namespace]):  
@@ -199,6 +250,18 @@ Currently, flow-engine provides a context module in `./lib/context` which could 
     add or update a variable with the specified getter, setter and configurable.
     Use configruable=false to avoid variable re-define.  
     Note: set new value to a getter-only variable will cause the exception.
+
+  - del(name):  
+    delete the variable by name.
+
+  - subscribe(event, handler):  
+    subscribe an event with the handler function : `function(event, next)`.
+
+  - unsubscribe(event, handler):  
+    unsubscribe the event
+
+  - notify(event, callback):  
+    fire the event and all of the handlers are invoked sequentially(based on the registration sequence). Then `callback` is called with undefined or an array of errors that subscriber handlers return.
 
   - dot notation:  
     You can also use dot notation to access the variables of a context object.
