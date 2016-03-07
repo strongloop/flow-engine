@@ -8,7 +8,7 @@ module.exports = function (config) {
         flow.fail({'name': 'next1', 'value':'foo'});
         logger.info('call next second time');
         flow.fail({'name': 'next2', 'value':'foo'});
-        setTimeout(()=>{
+        setTimeout(function() {
             logger.info('call next third time');
             flow.fail({'name': 'next3', 'value':'foo'});
         }, 0);

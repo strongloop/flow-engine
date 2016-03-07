@@ -23,8 +23,8 @@ function getCount(value) {
     if ( value === undefined ) {
         return 0;
     } else if (value.indexOf('ev-throw') === 0) {
-        let re = /ev-throw-(\d)/;
-        let match = re.exec(value);
+        var re = /ev-throw-(\d)/;
+        var match = re.exec(value);
         return parseInt(match[1]);
     }
     return 0;
