@@ -28,7 +28,7 @@ module.exports = function (config) {
                 (statusCode === 200 ? 'OK' : 'No Reason');
         }
 
-        logger.info('[write-msg] code=%d body=%s', statusCode, body);
+        logger.debug('[write-msg] code=%d body=%s', statusCode, body);
         flow.proceed();
     };
 };

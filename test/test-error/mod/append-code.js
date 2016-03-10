@@ -6,7 +6,7 @@ module.exports = function (config) {
         var label = props.label;
         var code = props.code;
         var logger = flow.logger;
-        logger.info('[append-code] label=%s code=%s', label, code);
+        logger.debug('[append-code] label=%s code=%s', label, code);
 
         var origin = context.get(label);
         code = (origin ? origin : '') + '|' + code;

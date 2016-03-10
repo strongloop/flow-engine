@@ -4,7 +4,7 @@ module.exports = function (config) {
 
     return function (props, context, flow) {
         var logger = flow.logger;
-        logger.info('execute subunsub task');
+        logger.debug('execute subunsub task');
         var count;
         var eh = function(event, next) {
             if (props['next-error']) {
