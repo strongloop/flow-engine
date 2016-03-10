@@ -4,7 +4,7 @@ module.exports = function (config) {
 
     return function (props, context, flow) {
         var logger = flow.logger;
-        logger.info('execute subscribe-throw task');
+        logger.debug('execute subscribe-throw task');
 
         var eh = function(event, next) {
             context.set('verify-me', 'ev-throw');

@@ -35,8 +35,8 @@ module.exports = function(options) {
         fs.watchFile(options.flow, function (curr, prev) {
             //if file changes, reload it
             if ( curr.mtime > prev.mtime ) {
-                logger.info('The assembly file is changed. ' +
-                    'Reload the file for the following requests.');
+                logger.debug('%s %', 'The assembly file is changed.',
+                  'Reload the file for the following requests.');
                 try {
                     config = yaml.load(options.flow);
                     error = undefined;
@@ -67,7 +67,7 @@ module.exports = function(options) {
         }
     } catch (e) {
         logger.error('Failed to load the parameter resolver: %s', e);
-        logger.info('Continue the flow execution without a parameter resolver');
+        logger.debug('Continue the flow execution without a parameter resolver');
     }
 
     //step 3: loading tasks module if there is
@@ -79,13 +79,13 @@ module.exports = function(options) {
     //return the middleware function
     return function (req, res, next) {
         if ( error ) {
-            logger.info('Go to the error middleware');
+            logger.debug('Go to the error middleware');
 
             //error with loading the assembly file. Go to the error middleware
             next(error);
         }
         else {
-            logger.info('Invoke the Flow middleware');
+            logger.debug('Invoke the Flow middleware');
 
             //start to run the flow engine
             var flowObj = new flow.Flow(config,

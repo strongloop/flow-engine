@@ -3,7 +3,7 @@
 module.exports = function (config) {
     return function (props, context, flow) {
         var logger = flow.logger;
-        logger.info('ENTER mypolicy policy');
+        logger.debug('ENTER mypolicy policy');
 
         context.set(props.name, props.value);
         if (props.stop === true) {
