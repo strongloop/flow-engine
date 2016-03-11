@@ -5,12 +5,12 @@ module.exports = function (config) {
         var logger = flow.logger;
         logger.debug('ENTER bad policy');
         logger.debug('call next first time');
-        flow.fail({'name': 'next1', 'value':'foo'});
+        flow.fail({'name': 'next1', 'message':'foo'});
         logger.debug('call next second time');
-        flow.fail({'name': 'next2', 'value':'foo'});
+        flow.fail({'name': 'next2', 'message':'foo'});
         setTimeout(function() {
             logger.debug('call next third time');
-            flow.fail({'name': 'next3', 'value':'foo'});
+            flow.fail({'name': 'next3', 'message':'foo'});
         }, 0);
     };
 };
