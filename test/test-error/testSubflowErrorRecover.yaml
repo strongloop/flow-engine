@@ -72,7 +72,7 @@ assembly:
 
                             - throw:
                                 name: $(secret)
-                                value: 'the secret'
+                                message: 'the secret'
                                 catch:
                                     - errors:
                                         - 'f'
@@ -96,7 +96,7 @@ assembly:
                                 execute:
                                     - throw:
                                         name: $(secret2)
-                                        value: 'the secret 2'
+                                        message: 'the secret 2'
 
                             - append-code:
                                 label: 'Body'
@@ -131,7 +131,7 @@ assembly:
                             execute:
                                 - throw:
                                     name: $(secret3)
-                                    value: 'the secret 3'
+                                    message: 'the secret 3'
                             catch:
                                 - errors:
                                     - 'h'
@@ -189,7 +189,7 @@ assembly:
                     execute:
                         - throw:
                             name: $(secret4)
-                            value: 'the secret 4'
+                            message: 'the secret 4'
 
                         - append-code:
                             label: 'Body'
