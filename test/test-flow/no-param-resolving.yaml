@@ -1,0 +1,8 @@
+context:
+  myval: 'foo'
+
+assembly:
+  execute:
+    - mypolicy:
+        name: myval
+        value: $(myval)
