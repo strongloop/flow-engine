@@ -56,4 +56,16 @@ describe('policy execution', function() {
                    });
        });
     });
+
+   describe('no param resolving', function() {
+     it('should git $() without replacement', function(done) {
+         var ctx = createFlow(__dirname + '/test-flow/no-param-resolving.yaml',
+                 {'mypolicy': __dirname + '/test-flow/no-param-resolving'},
+                 __dirname + '/util/apim-param-resolver',
+                 function() {
+                     should(ctx.get('myval')).exactly('$(myval)');
+                     done();
+                 });
+     });
+  });
 });
