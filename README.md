@@ -18,11 +18,13 @@ execute:
       verb: $(request.verb)   # Takes the verb from the context if not set here.
 ```
 
+A task in flow-engine is also known as a policy. In this document, `task ` equals `policy`.
+
 The FlowEngine comes with some prebuilt tasks at [lib/task](lib/task), including -
 - if
 - invoke-api
 - etc (more to be added)
-You can use these prebuilt tasks to compose your flow.
+You can use these prebuilt task to compose your flow.
 
 If none of the prebuilt tasks meet your needs, you can build your own and
 add it to the `lib/task` directory, and FlowEngine can execute it.
@@ -90,7 +92,7 @@ flow.prepare(context, next);
 flow.run();
 ```
 
-#APIs for Task developer
+#APIs for Task/Policy developer
 A task is the unit of the flow assembly. flow-engine leverages tasks to fulfills
 a flow assembly. When developing a custom task, flow-engine provides the following APIs:
 
@@ -174,7 +176,7 @@ app.post('/*', [ flow ]);
   middlewareHandler(request, response, next);
   ```
 
-### The Task(aka policy) interface
+### The Task/Policy interface
 - Every task that is defined inside the assembly should have a corresponding task module. And the task module should provide a factory function - `function(config)` and return a task handler function - `function(props, context, flow)`. Therefore, flow-engine will use the task module like this:
 
   ```
@@ -182,7 +184,7 @@ app.post('/*', [ flow ]);
   taskHandler(props, context, flow);
   ```
   
-- **Finding task handlers to execute the tasks that defined in the assembly**:
+- **Finding task/policy handlers to execute the tasks/policies that defined in the assembly**:
   - tasks under `<flow-engine>/lib/task` are loaded when require('flow-engine'). flow-engine calls these tasks' factory functions with empty config object and keeps the returned task handler functions
   - use task's name to search the task module and see if there is a task module under options.tasks[taskName].
     The options.tasks here is the options that you pass to Flow's constructor or the setup function.
@@ -190,7 +192,7 @@ app.post('/*', [ flow ]);
   - searching the task module under `<flow-engine>/lib/task.
   - diretcly use `require` against the task's name, call its factory function with empty config and get the handler function
 
-- **Execute a task**:
+- **Execute a task/policy**:
   - use the `Finding task handlers procedure` above to get task's handler function
   - get the properties/values that defined in the assemble for the task and use paramResolver to replace the placeholder into corresponding value if there is
   - call the task handler function we get from step 1 and pass the properties/values, context obj and flow obj into it. the `flow` here is a object which contains a set of APIs:
