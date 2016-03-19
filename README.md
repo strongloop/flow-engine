@@ -1,36 +1,43 @@
 # flow-engine
 
-[![Build Status](https://apim-jenkins3.hursley.ibm.com/view/API%20Connect/job/flow-engine.nvm/badge/icon)](https://apim-jenkins3.hursley.ibm.com/view/API%20Connect/job/flow-engine.nvm/)
-
-FlowEngine can execute a series of tasks described using YAML, see example YAML below.
+The flow-engine is a node.js module specializing in processing of a sequence of tasks. The tasks execution sequence is described using JSON object. The following code snippet is an example of the execution sequences in YAML format:
 
 ```
-execute:
-  - if:
-      condition: "'$(request.content-type)' === 'text/xml'"
-      execute:
-        - activity-log:
-            content: activity01
-            error-content: payload01
+assembly:
+  execute:
+    - if:
+        condition: "'$(request.verb)' === 'POST'"
+        execute:
+          - message-mediation:
+              target: context.response
+              value: "{ status: 200, message: 'This is a POST response' }"
 
-  - invoke-api:
-      target-url: "http://$(target-host)/services/climbing/$(request.path)"
-      verb: $(request.verb)   # Takes the verb from the context if not set here.
+    - if:
+        condition: "'$(request.verb)' === 'GET'"
+        execute:
+          - message-mediation:
+              target: context.response
+              value: "{ status: 200, message: 'This is a GET response' }"
+
+    - response:
+        payload: context.response
 ```
 
-A task in flow-engine is also known as a policy. In this document, `task ` equals `policy`.
+Each task is a JavaScript function that can
+  - execute any code
+  - make change to the `context` object
+  - instruct flow-engine to continue or stop the remaining tasks execution
 
-The FlowEngine comes with some prebuilt tasks at [lib/task](lib/task), including -
-- if
-- invoke-api
-- etc (more to be added)
-You can use these prebuilt task to compose your flow.
+The flow-engine provides some prebuilt tasks at [lib/task](lib/task).
+You can use these prebuilt tasks to compose your flow or use them as references
+to build customized ones. Putting the customized tasks to the `lib/task` directory,
+and flow-engine can pick up the new tasks without additional configuration.
 
-If none of the prebuilt tasks meet your needs, you can build your own and
-add it to the `lib/task` directory, and FlowEngine can execute it.
+# flow-engine and IBM apiconnect-microgateway
+The flow-engine is designed to be the heart of a gateway or reverse proxy. It is included and used as part of the apiconnect-microgateway module that provides API policies enforcement. Each API policy is implemented as a flow-engine task, and the policies enformance is described as the assembly flow to be executed by the flow-engine.
 
 #Installation
-`npm install`
+`npm install flow-engine`
 
 #APIs
 To use the FlowEngine, one must `require('flow-engine')`.
