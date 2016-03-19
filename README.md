@@ -1,26 +1,49 @@
 # flow-engine
 
-The flow-engine is a node.js module specializing in processing of a sequence of tasks. The tasks execution sequence is described using JSON object. The following code snippet is an example of the execution sequences in YAML format:
+The flow-engine is a node.js module specializing in processing of a sequence of
+tasks. The tasks execution sequence is defined in JSON object's `assembly`
+property and passed to flow-engine for execution.
+In The following example, flow-engine executes three tasks - `if`, `if`, and
+`response`. 
 
 ```
-assembly:
-  execute:
-    - if:
-        condition: "'$(request.verb)' === 'POST'"
-        execute:
-          - message-mediation:
-              target: context.response
-              value: "{ status: 200, message: 'This is a POST response' }"
-
-    - if:
-        condition: "'$(request.verb)' === 'GET'"
-        execute:
-          - message-mediation:
-              target: context.response
-              value: "{ status: 200, message: 'This is a GET response' }"
-
-    - response:
-        payload: context.response
+{
+  "assembly": {
+    "execute": [
+      {
+        "if": {
+          "condition": "'$(request.verb)' === 'POST'",
+          "execute": [
+            {
+              "message-mediation": {
+                "target": "context.response",
+                "value": "{ status: 200, message: 'This is a POST response' }"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "if": {
+          "condition": "'$(request.verb)' === 'GET'",
+          "execute": [
+            {
+              "message-mediation": {
+                "target": "context.response",
+                "value": "{ status: 200, message: 'This is a GET response' }"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "response": {
+          "payload": "context.response"
+        }
+      }
+    ]
+  }
+}
 ```
 
 Each task is a JavaScript function that can
@@ -34,7 +57,13 @@ to build customized ones. Putting the customized tasks to the `lib/task` directo
 and flow-engine can pick up the new tasks without additional configuration.
 
 # flow-engine and IBM apiconnect-microgateway
-The flow-engine is designed to be the heart of a gateway or reverse proxy. It is included and used as part of the apiconnect-microgateway module that provides API policies enforcement. Each API policy is implemented as a flow-engine task, and the policies enformance is described as the assembly flow to be executed by the flow-engine.
+The flow-engine is designed to be the heart of a gateway or reverse proxy.
+It is included and used as part of the apiconnect-microgateway module that
+serves as API policies enformcenet point.
+
+Each API policy on the apiconnect-microgateway is implemented as a flow-engine
+task. And what and when API policies need to be enforced is describe as the
+assembly flow to be executed by the flow-engine.
 
 #Installation
 `npm install flow-engine`
