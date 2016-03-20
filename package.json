@@ -12,11 +12,16 @@
     "url": "git@github.ibm.com:apimesh/flow-engine.git"
   },
   "keywords": [
+    "ibm",
+    "api",
+    "connect",
+    "apiconnect",
+    "gateway",
     "flow",
     "flowengine"
   ],
   "author": "IBM",
-  "license": "ISC",
+  "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "async": "^1.5.2",
     "bunyan": "^1.7.0",
