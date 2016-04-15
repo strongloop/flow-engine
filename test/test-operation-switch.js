@@ -44,7 +44,7 @@ var middlewares = [whenFlowSucceeds, whenFlowFails];
 function switchOnVerbAndPath(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/test-switch/switchPolicyTesting.yaml',
+        flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
@@ -64,7 +64,7 @@ function switchOnVerbAndPath(doneCB) {
 function switchOnOperationId1(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/test-switch/switchPolicyTesting.yaml',
+        flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
@@ -85,7 +85,7 @@ function switchOnOperationId1(doneCB) {
 function switchOnOperationId2(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/test-switch/switchPolicyTesting.yaml',
+        flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
@@ -106,7 +106,7 @@ function switchOnOperationId2(doneCB) {
 function switchOnOperationId3(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/test-switch/switchPolicyTesting.yaml',
+        flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
@@ -128,7 +128,7 @@ function switchOnOperationId3(doneCB) {
 function switchNoCase(doneCB) {
     //the gateway options
     var flowOptions = {
-        flow: 'test/test-switch/switchPolicyTesting.yaml',
+        flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
