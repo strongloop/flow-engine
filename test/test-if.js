@@ -13,6 +13,8 @@ describe('ifPolicyTestingVerb', function() {
   it('ifPolicyTestingVerbDELETE', ifPolicyTestingVerbDELETE);
   it('ifPolicyTestingVerbHEAD', ifPolicyTestingVerbHEAD);
 
+  it('ifPolicySyntaxError', ifPolicySyntaxError);
+  it('ifPolicyReferenceError', ifPolicyReferenceError);
 });
 
 var request;
@@ -105,6 +107,50 @@ function ifPolicyTestingVerbHEAD(doneCB) {
     //send a request and test the response
     function testRequest() {
         request.head('/dummy').expect(200, /$^/, doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function ifPolicySyntaxError(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-if/ifPolicyError.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'write-msg': 'test-if/mod/write-msg.js',
+            'write-err': 'test-if/mod/write-err.js',
+        }};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/dummy')
+               .set('X-TEST', 'syntax')
+               .expect(200, 'RuntimeError: SyntaxError: Unexpected token *', doneCB);
+    }
+
+    var go = startGateway(flowOptions, saveReq);
+    go(testRequest, middlewares);
+}
+
+function ifPolicyReferenceError(doneCB) {
+    //the gateway options
+    var flowOptions = {
+        flow: 'test/test-if/ifPolicyError.yaml',
+        paramResolver: 'util/apim-param-resolver.js',
+        baseDir: __dirname,
+        tasks: {
+            'write-msg': 'test-if/mod/write-msg.js',
+            'write-err': 'test-if/mod/write-err.js',
+        }};
+
+    //send a request and test the response
+    function testRequest() {
+        request.get('/dummy')
+               .set('X-TEST', 'reference')
+               .expect(200, 'RuntimeError: ReferenceError: order is not defined', doneCB);
     }
 
     var go = startGateway(flowOptions, saveReq);
