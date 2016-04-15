@@ -1,0 +1,43 @@
+# This file contains testcases for the 'switch' policy. The 'switch' policy is
+# used to perform the conditional processing.
+
+context:
+  bool: ${request.headers['x-bool']}
+  int:  ${request.headers['x-int']}
+
+
+assembly:
+  execute:
+    - switch:
+        case:
+          - condition: "'$(bool)'.toLowerCase() === 'true'"
+            execute:
+              - add-msg:
+                  value:
+                      bool: true
+          - condition: "'$(bool)'.toLowerCase() === 'false'"
+            execute:
+              - add-msg:
+                  value:
+                      bool: false
+          - otherwise:
+              - throw:
+                  name: Invalid bool
+                  message: The x-bool '$(bool)' is not accepted
+
+    - switch:
+        case:
+          - condition: parseInt('$(int)') >= 0
+            execute:
+              - add-msg:
+                  value:
+                      int: positive
+          - condition: parseInt('$(int)') < 0
+            execute:
+              - add-msg:
+                  value:
+                      int: negative
+
+  catch:
+    - default:
+        - write-err: 'no property is needed'
