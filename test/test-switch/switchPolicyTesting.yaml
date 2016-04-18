@@ -1,42 +1,43 @@
-# This file contains testcases for the 'operation-switch' policy. The
-# 'operation-switch' policy is used to test the operation and generate different
-# reponses accordingly.
+# This file contains testcases for the 'switch' policy. The 'switch' policy is
+# used to perform the conditional processing.
 
 context:
-  request.verb: ${request.method}
-  request.path : ${request.path}
-  api.operationId: ${request.headers['x-op-type']}
+  bool: ${request.headers['x-bool']}
+  int:  ${request.headers['x-int']}
+
 
 assembly:
   execute:
-    - operation-switch:
+    - switch:
         case:
-          - operations:
-              - createOrder
+          - condition: "'$(bool)'.toLowerCase() === 'true'"
             execute:
-              - write-msg:
-                  statusCode: 200
-                  body: A new order is created
-
-          - operations:
-              - verb: POST
-                path: /customer
+              - add-msg:
+                  value:
+                      bool: true
+          - condition: "'$(bool)'.toLowerCase() === 'false'"
             execute:
-              - write-msg:
-                  statusCode: 200
-                  body: A new customer is created
+              - add-msg:
+                  value:
+                      bool: false
+          - otherwise:
+              - throw:
+                  name: Invalid bool
+                  message: The x-bool '$(bool)' is not accepted
 
-          - operations:
-              - updateOrder
+    - switch:
+        case:
+          - condition: parseInt('$(int)') >= 0
             execute:
-              - write-msg:
-                  statusCode: 200
-                  body: The given order is updated
-
-          - operations:
-              - deleteOrder
+              - add-msg:
+                  value:
+                      int: positive
+          - condition: parseInt('$(int)') < 0
             execute:
-              - write-msg:
-                  statusCode: 500
-                  body: Deleting orders is not allowed
+              - add-msg:
+                  value:
+                      int: negative
 
+  catch:
+    - default:
+        - write-err: 'no property is needed'

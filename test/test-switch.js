@@ -7,13 +7,14 @@
 var startGateway = require('./util/start-gateway.js');
 
 describe('switchPolicyTesting', function() {
+  //first switch (match default)
+  it('switchPolicyMatchDefault', switchPolicyMatchDefault);
 
-  it('switchOnVerbAndPath', switchOnVerbAndPath);
-  it('switchOnOperationId1', switchOnOperationId1);
-  it('switchOnOperationId2', switchOnOperationId2);
-  it('switchOnOperationId3', switchOnOperationId3);
-  it('switchNoCase', switchNoCase);
+  //first switch (match case), second switch (match case)
+  it('switchPolicyMatchMatch', switchPolicyMatchMatch);
 
+  //first switch (match case), second switch (no default no match)
+  it('switchPolicyMatchNoDefault', switchPolicyMatchNoDefault);
 });
 
 var request;
@@ -24,10 +25,8 @@ function saveReq(req) {
 //To write the response
 function whenFlowSucceeds(req, res, next) {
     var msg = req.context.message;
-    if (msg) {
-        res.writeHead(msg.statusCode, msg.headers);
-        res.end(msg.body);
-    }
+    res.writeHead(msg.statusCode);
+    res.end(JSON.stringify(msg.body));
     next();
 }
 
@@ -41,105 +40,75 @@ function whenFlowFails(err, req, res, next) {
 //the middlewares running after the flow.
 var middlewares = [whenFlowSucceeds, whenFlowFails];
 
-function switchOnVerbAndPath(doneCB) {
+
+function switchPolicyMatchDefault(doneCB) {
     //the gateway options
     var flowOptions = {
         flow: 'test/test-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
+            'add-msg': 'test-switch/mod/add-msg.js',
+            'write-err': 'test-switch/mod/write-err.js',
+        }};
 
     //send a request and test the response
     function testRequest() {
-        request.post('/customer')
-            .expect(200, /A new customer is created/, doneCB);
+        request.get('/foo')
+            .set('X-BOOL', 'boolean')
+            .expect(200,
+                    /^"Invalid bool: The x-bool \'boolean\' is not accepted"$/,
+                    doneCB);
     }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
 }
 
-function switchOnOperationId1(doneCB) {
+function switchPolicyMatchMatch(doneCB) {
     //the gateway options
     var flowOptions = {
         flow: 'test/test-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
+            'add-msg': 'test-switch/mod/add-msg.js',
+            'write-err': 'test-switch/mod/write-err.js',
+        }};
 
     //send a request and test the response
     function testRequest() {
-        request.post('/order')
-           .set('X-OP-TYPE', 'createOrder')
-           .expect(200, /A new order is created/, doneCB);
+        request.get('/foo')
+            .set('X-BOOL', 'true')
+            .set('X-INT', '-100')
+            .expect(200,
+                    /^{"bool":true,"int":"negative"}$/,
+                    doneCB);
     }
 
     var go = startGateway(flowOptions, saveReq);
     go(testRequest, middlewares);
 }
 
-function switchOnOperationId2(doneCB) {
+function switchPolicyMatchNoDefault(doneCB) {
     //the gateway options
     var flowOptions = {
         flow: 'test/test-switch/switchPolicyTesting.yaml',
         paramResolver: 'util/apim-param-resolver.js',
         baseDir: __dirname,
         tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
+            'add-msg': 'test-switch/mod/add-msg.js',
+            'write-err': 'test-switch/mod/write-err.js',
+        }};
 
     //send a request and test the response
     function testRequest() {
-        request.post('/order')
-           .set('X-OP-TYPE', 'updateOrder')
-           .expect(200, /The given order is updated/, doneCB);
-    }
-
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
-}
-
-function switchOnOperationId3(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-switch/switchPolicyTesting.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
-
-    //send a request and test the response
-    function testRequest() {
-        request.delete('/order')
-           .set('X-OP-TYPE', 'deleteOrder')
-           .expect(500, /Deleting orders is not allowed/, doneCB);
-    }
-
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
-}
-
-//Cannot Get /order
-function switchNoCase(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-switch/switchPolicyTesting.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
-
-    //send a request and test the response
-    function testRequest() {
-        request.get('/order')
-           .set('X-OP-TYPE', 'getOrder')
-           .expect(500, doneCB);
+        request.get('/foo')
+            .set('X-BOOL', 'false')
+            .set('X-INT', 'Not a number')
+            .expect(200,
+                    /^{"bool":false}$/,
+                    doneCB);
     }
 
     var go = startGateway(flowOptions, saveReq);

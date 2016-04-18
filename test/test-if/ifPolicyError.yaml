@@ -1,0 +1,33 @@
+# The condition of an if policy is a javascript expression. Let's test the
+# invalid expressions
+
+context:
+  test: ${request.headers['x-test']}
+
+assembly:
+  execute:
+    - if:
+        condition: "'$(test)' === 'reference'"
+        execute:
+          - if:
+              condition: "order.price > 0"  #order is not defined
+              execute:
+                - write-msg:
+                    statusCode: 500
+                    body: "No way (reference)!"
+
+    - if:
+        condition: "'$(test)' === 'syntax'"
+        execute:
+          - if:
+              condition: "5 * * 3"  #invalid expression
+              execute:
+                - write-msg:
+                    statusCode: 500
+                    body: "No way (syntax)!"
+
+
+  catch:
+    - default:
+        - write-err: 'no property is needed'
+
