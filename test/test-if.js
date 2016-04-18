@@ -128,7 +128,7 @@ function ifPolicySyntaxError(doneCB) {
     function testRequest() {
         request.get('/dummy')
                .set('X-TEST', 'syntax')
-               .expect(/RuntimeError: SyntaxError.*Unexpected token \*/)
+               .expect(/Unexpected token/)
                .expect(200, doneCB);
     }
 
@@ -151,7 +151,7 @@ function ifPolicyReferenceError(doneCB) {
     function testRequest() {
         request.get('/dummy')
                .set('X-TEST', 'reference')
-               .expect(/RuntimeError: ReferenceError.*order is not defined/)
+               .expect(/order is not defined/)
                .expect(200, doneCB);
     }
 
