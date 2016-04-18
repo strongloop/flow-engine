@@ -13,7 +13,7 @@ module.exports = function (config) {
 
         context.message.statusCode = 200;
         context.message.body =
-            context.error.name + ": " + context.error.message;
+            context.error.name + ': ' + context.error.message;
         context.message.headers = {};
 
         flow.proceed();
