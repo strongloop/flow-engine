@@ -3,6 +3,7 @@
 //US Government Users Restricted Rights - Use, duplication or disclosure
 //restricted by GSA ADP Schedule Contract with IBM Corp.
 
+/*eslint-env node */
 var express   = require('express');
 var supertest = require('supertest');
 var yaml      = require('yamljs');

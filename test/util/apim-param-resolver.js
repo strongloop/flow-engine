@@ -3,6 +3,7 @@
 //US Government Users Restricted Rights - Use, duplication or disclosure
 //restricted by GSA ADP Schedule Contract with IBM Corp.
 
+/*eslint-env node */
 module.exports = function() {
   return function(context, name, value) {
     if (typeof value === 'string')

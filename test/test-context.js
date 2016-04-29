@@ -3,6 +3,7 @@
 //US Government Users Restricted Rights - Use, duplication or disclosure
 //restricted by GSA ADP Schedule Contract with IBM Corp.
 
+/*eslint-env node, mocha*/
 'use strict';
 var createContext = require('../index.js').createContext;
 var should        = require('should');

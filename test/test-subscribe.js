@@ -3,6 +3,7 @@
 //US Government Users Restricted Rights - Use, duplication or disclosure
 //restricted by GSA ADP Schedule Contract with IBM Corp.
 
+/*eslint-env node, mocha*/
 'use strict';
 var startGateway  = require('./util/start-gateway.js');
 var path          = require('path');
