@@ -1,7 +1,7 @@
-// Copyright IBM Corp. 2016. All Rights Reserved.
-// Node module: flow-engine
-// US Government Users Restricted Rights - Use, duplication or disclosure
-// restricted by GSA ADP Schedule Contract with IBM Corp.
+//Copyright IBM Corp. 2016. All Rights Reserved.
+//Node module: flow-engine
+//US Government Users Restricted Rights - Use, duplication or disclosure
+//restricted by GSA ADP Schedule Contract with IBM Corp.
 
 'use strict';
 var startGateway = require('./util/start-gateway.js');
@@ -91,21 +91,21 @@ describe('flowAndErrorHandler', function() {
 
 var request;
 function saveReq(req) {
-    request = req;
+  request = req;
 }
 
 //To return a 200 response
 function whenFlowSucceeds(req, res, next) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(req.context.get('Body'));
-    next();
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end(req.context.get('Body'));
+  next();
 }
 
 //To return a 500 response with the context.error in the body
 function whenFlowFails(err, req, res, next) {
-    res.writeHead(500, {'Content-Type': 'text/json'});
-    res.end(JSON.stringify(req.context.error));
-    next();
+  res.writeHead(500, {'Content-Type': 'text/json'});
+  res.end(JSON.stringify(req.context.error));
+  next();
 }
 
 //the middlewares running after the flow.
@@ -114,635 +114,635 @@ var middlewares = [whenFlowSucceeds, whenFlowFails];
 
 
 function testTwoConsecutiveCallPolicies(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testTwoConsecutiveCallPolicies.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testTwoConsecutiveCallPolicies.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy').expect(200,
-                '|MT1|SF1T1|MT3|SF2T1', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy').expect(200,
+        '|MT1|SF1T1|MT3|SF2T1', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testNestedCallPolicies(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testNestedCallPolicies.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testNestedCallPolicies.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy').expect(200,
-                '|MT1|SF1T1|SF2T1|SF2T2|SF1T3|MT3', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy').expect(200,
+        '|MT1|SF1T1|SF2T1|SF2T2|SF1T3|MT3', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testMainErrorRecoveredByLEH1(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-COLOR-HDR', 'indigo')
-               .expect(200, '|MT1|LH1C2T1|MT3', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-COLOR-HDR', 'indigo')
+    .expect(200, '|MT1|LH1C2T1|MT3', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testMainErrorRecoveredByLEH2(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-COLOR-HDR', 'stone')
-               .expect(200, '|MT1|LHDT1|LHDT2|MT3', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-COLOR-HDR', 'stone')
+    .expect(200, '|MT1|LHDT1|LHDT2|MT3', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testMainErrorRecoveredByGEH(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testMainErrorRecoveredByGEH.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testMainErrorRecoveredByGEH.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-COLOR-HDR', 'yellow')
-               .expect(200, '|MT1|GH1C1T1', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-COLOR-HDR', 'yellow')
+    .expect(200, '|MT1|GH1C1T1', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowErrorRecoveredByPolicy(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    var expect =
-        '|MT1|SF1T3|SF2T6|SF3T8|LH3Cf|SF3T9|SF3T10|SF2T7|SF1T4|SF1T5|MT2';
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'f')
-               .expect(200, expect, doneCB);
-    }
+  //send a request and test the response
+  var expect =
+    '|MT1|SF1T3|SF2T6|SF3T8|LH3Cf|SF3T9|SF3T10|SF2T7|SF1T4|SF1T5|MT2';
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'f')
+    .expect(200, expect, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowErrorRecoveredByParent(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'd')
-               .expect(200,
-                       '|MT1|SF1T3|SF2T6|SF3T8|LH1Cd|SF1T4|SF1T5|MT2',
-                       doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'd')
+    .expect(200,
+        '|MT1|SF1T3|SF2T6|SF3T8|LH1Cd|SF1T4|SF1T5|MT2',
+        doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowErrorRecoveredByGEH(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'z')
-               .expect(200, '|MT1|SF1T3|SF2T6|SF3T8|GHD', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'z')
+    .expect(200, '|MT1|SF1T3|SF2T6|SF3T8|GHD', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowTwoErrorsHandled1(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'f')
-               .set('X-SECRET2-HDR', 'b')
-               .expect(200,
-                       '|MT1|SF1T3|SF2T6|SF3T8|LH3Cf|SF3T9|LH0Cb|MT2',
-                       doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'f')
+    .set('X-SECRET2-HDR', 'b')
+    .expect(200,
+        '|MT1|SF1T3|SF2T6|SF3T8|LH3Cf|SF3T9|LH0Cb|MT2',
+        doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowTwoErrorsHandled2(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    var expect =
-        '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|LL0Ch|LH1CeT12|SF1T4|SF1T5|MT2';
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'e')
-               .set('X-SECRET3-HDR', 'h')
-               .expect(200, expect, doneCB);
-    }
+  //send a request and test the response
+  var expect =
+    '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|LL0Ch|LH1CeT12|SF1T4|SF1T5|MT2';
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'e')
+    .set('X-SECRET3-HDR', 'h')
+    .expect(200, expect, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowTwoErrorsHandled3(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    var expect =
-        '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|LH0Ca|MT2';
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'e')
-               .set('X-SECRET3-HDR', 'a')
-               .expect(200, expect, doneCB);
-    }
+  //send a request and test the response
+  var expect =
+    '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|LH0Ca|MT2';
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'e')
+    .set('X-SECRET3-HDR', 'a')
+    .expect(200, expect, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowTwoErrorsHandled4(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    var expect =
-        '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|LH1CeT12|SF1T4|SF1T5|MT2';
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'e')
-               .expect(200, expect, doneCB);
-    }
+  //send a request and test the response
+  var expect =
+    '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|LH1CeT12|SF1T4|SF1T5|MT2';
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'e')
+    .expect(200, expect, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowTwoErrorsHandledByGEH1(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'f')
-               .set('X-SECRET2-HDR', 'z')
-               .expect(200,
-                       '|MT1|SF1T3|SF2T6|SF3T8|LH3Cf|SF3T9|GHD',
-                       doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'f')
+    .set('X-SECRET2-HDR', 'z')
+    .expect(200,
+        '|MT1|SF1T3|SF2T6|SF3T8|LH3Cf|SF3T9|GHD',
+        doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testSubflowTwoErrorsHandledByGEH2(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'e')
-               .set('X-SECRET3-HDR', 'z')
-               .expect(200,
-                       '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|GHD',
-                       doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'e')
+    .set('X-SECRET3-HDR', 'z')
+    .expect(200,
+        '|MT1|SF1T3|SF2T6|SF3T8|LH1CeT11|GHD',
+        doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testRecoverTheSubflowErrorInGEH(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testSubflowErrorRecover.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testSubflowErrorRecover.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    var expect =
-        '|MT1|SF1T3|SF2T6|SF3T8|GHCpT1|SFG1T3|LHG1CqrT1|SFG1T4|GHCpT2';
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'p')
-               .set('X-SECRET4-HDR', 'r')
-               .expect(200, expect, doneCB);
-    }
+  //send a request and test the response
+  var expect =
+    '|MT1|SF1T3|SF2T6|SF3T8|GHCpT1|SFG1T3|LHG1CqrT1|SFG1T4|GHCpT2';
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'p')
+    .set('X-SECRET4-HDR', 'r')
+    .expect(200, expect, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testUncaughtErrorInMain(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testUncaughtError.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testUncaughtError.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'a')
-               .set('X-SECRET5-HDR', 'whatever')
-               .expect(500, /whatever.*secret 5/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'a')
+    .set('X-SECRET5-HDR', 'whatever')
+    .expect(500, /whatever.*secret 5/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testUncauthtErrorInLEH(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testUncaughtError.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testUncaughtError.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'e')
-               .set('X-SECRET3-HDR', 'z')
-               .expect(500, /z.*secret 3/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'e')
+    .set('X-SECRET3-HDR', 'z')
+    .expect(500, /z.*secret 3/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testUncauthtErrorInGEH(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testUncaughtError.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testUncaughtError.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'p')
-               .set('X-SECRET4-HDR', 'z')
-               .expect(500, /z.*secret 4/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'p')
+    .set('X-SECRET4-HDR', 'z')
+    .expect(500, /z.*secret 4/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testUncaughtErrorInSubflow1(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testUncaughtError.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testUncaughtError.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'z')
-               .expect(500, /z.*secret"/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'z')
+    .expect(500, /z.*secret"/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testUncaughtErrorInSubflow2(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testUncaughtError.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testUncaughtError.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'g')
-               .set('X-SECRET2-HDR', 'z')
-               .expect(500, /z.*secret 2/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'g')
+    .set('X-SECRET2-HDR', 'z')
+    .expect(500, /z.*secret 2/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testUncaughtErrorInSubflow3(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testUncaughtErrorInSubflow3.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testUncaughtErrorInSubflow3.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .expect(500, /b.*catch me if you can/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .expect(500, /b.*catch me if you can/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testReThrowErrorInHandler(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testReThrowErrorInHandler.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testReThrowErrorInHandler.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SHAPE-HDR', 'circle')
-               .expect(200, '|MT1|circle|GHC2', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SHAPE-HDR', 'circle')
+    .expect(200, '|MT1|circle|GHC2', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testFlowErrorHandler(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testErrorInErrorHandler.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'run-flow': 'test-error/mod/run-flow.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testErrorInErrorHandler.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'run-flow': 'test-error/mod/run-flow.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    var expect = '|MT1|SF1T3|SF2T5|LH2DdT11|SF1T4|dynamic-subflow-S1(resumed)|MT2';
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'd')
-               .expect(200, expect, doneCB);
-    }
+  //send a request and test the response
+  var expect = '|MT1|SF1T3|SF2T5|LH2DdT11|SF1T4|dynamic-subflow-S1(resumed)|MT2';
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'd')
+    .expect(200, expect, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testErrorInFlowErrorHandler(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testErrorInErrorHandler.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'run-flow': 'test-error/mod/run-flow.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testErrorInErrorHandler.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'run-flow': 'test-error/mod/run-flow.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'z')
-               .expect(200, '|MT1|SF1T3|SF2T5|LH1DT7|LH0D|MT2', doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'z')
+    .expect(200, '|MT1|SF1T3|SF2T5|LH1DT7|LH0D|MT2', doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 function testErrorInPolicyErrorHandler(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testErrorInErrorHandler.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            'call': 'test-error/mod/call.js',
-            'run-flow': 'test-error/mod/run-flow.js',
-            'append-code': 'test-error/mod/append-code.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testErrorInErrorHandler.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        'call': 'test-error/mod/call.js',
+        'run-flow': 'test-error/mod/run-flow.js',
+        'append-code': 'test-error/mod/append-code.js'}};
 
-    //send a request and test the response
-    var expect = '|MT1|SF1T3|SF2T5|LH2DabcT9|LH1DT7|LH0D|MT2';
-    function testRequest() {
-        request.get('/dummy')
-               .set('X-SECRET-HDR', 'b')
-               .expect(200, expect, doneCB);
-    }
+  //send a request and test the response
+  var expect = '|MT1|SF1T3|SF2T5|LH2DabcT9|LH1DT7|LH0D|MT2';
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-SECRET-HDR', 'b')
+    .expect(200, expect, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, middlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, middlewares);
 }
 
 var basicMiddlewares = [
 function (req, res, next) {
-    var msg = req.context.message;
-    if (msg) {
-        res.writeHead(msg.statusCode, msg.headers);
-        res.end(msg.body);
-    }
-    next();
+  var msg = req.context.message;
+  if (msg) {
+    res.writeHead(msg.statusCode, msg.headers);
+    res.end(msg.body);
+  }
+  next();
 },
 function (err, req, res, next) {
-    res.writeHead(500, {'Content-Type': 'text/json'});
-    res.end(JSON.stringify(req.context.error));
-    next();
+  res.writeHead(500, {'Content-Type': 'text/json'});
+  res.end(JSON.stringify(req.context.error));
+  next();
 }];
 
 function testBasic1(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testBasic.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testBasic.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        //reuse the module in the 'test-if/' directory
+        'write-msg': 'test-if/mod/write-msg.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.post('/dummy')
-           .set('X-FOO-HDR', '50')
-           .expect(200, /The minor error is recovered/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.post('/dummy')
+    .set('X-FOO-HDR', '50')
+    .expect(200, /The minor error is recovered/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, basicMiddlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, basicMiddlewares);
 }
 
 function testBasic2(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testBasic.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testBasic.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        //reuse the module in the 'test-if/' directory
+        'write-msg': 'test-if/mod/write-msg.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.delete('/dummy')
-           .set('X-FOO-HDR', '300')
-           .expect(500, /Found a major error/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.delete('/dummy')
+    .set('X-FOO-HDR', '300')
+    .expect(500, /Found a major error/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, basicMiddlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, basicMiddlewares);
 }
 
 function testBasic3(doneCB) {
-    //the gateway options
-    var flowOptions = {
-        flow: 'test/test-error/testBasic.yaml',
-        paramResolver: 'util/apim-param-resolver.js',
-        baseDir: __dirname,
-        tasks: {
-            //reuse the module in the 'test-if/' directory
-            'write-msg': 'test-if/mod/write-msg.js'}};
+  //the gateway options
+  var flowOptions = {
+      flow: 'test/test-error/testBasic.yaml',
+      paramResolver: 'util/apim-param-resolver.js',
+      baseDir: __dirname,
+      tasks: {
+        //reuse the module in the 'test-if/' directory
+        'write-msg': 'test-if/mod/write-msg.js'}};
 
-    //send a request and test the response
-    function testRequest() {
-        request.get('/dummy')
-           .set('X-FOO-HDR', '600')
-           .expect(500, /Found a critical error/, doneCB);
-    }
+  //send a request and test the response
+  function testRequest() {
+    request.get('/dummy')
+    .set('X-FOO-HDR', '600')
+    .expect(500, /Found a critical error/, doneCB);
+  }
 
-    var go = startGateway(flowOptions, saveReq);
-    go(testRequest, basicMiddlewares);
+  var go = startGateway(flowOptions, saveReq);
+  go(testRequest, basicMiddlewares);
 }
 

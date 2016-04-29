@@ -1,7 +1,7 @@
-// Copyright IBM Corp. 2015,2016. All Rights Reserved.
-// Node module: flow-engine
-// US Government Users Restricted Rights - Use, duplication or disclosure
-// restricted by GSA ADP Schedule Contract with IBM Corp.
+//Copyright IBM Corp. 2015,2016. All Rights Reserved.
+//Node module: flow-engine
+//US Government Users Restricted Rights - Use, duplication or disclosure
+//restricted by GSA ADP Schedule Contract with IBM Corp.
 
 var express   = require('express');
 var supertest = require('supertest');
@@ -15,8 +15,8 @@ require('events').EventEmitter.prototype._maxListeners = 100;
 module.exports = function() {
   if (arguments.length < 2) {
     throw new Error(
-            'Need at least 2 parameters to start Gateway.\n' +
-            'Usage: startGateway(flow-options [, backend-options], done)');
+        'Need at least 2 parameters to start Gateway.\n' +
+        'Usage: startGateway(flow-options [, backend-options], done)');
   }
 
   var flowOptions = arguments[0];
@@ -65,9 +65,9 @@ module.exports = function() {
       });
 
       if ( middlewares && middlewares instanceof Array ) {
-          middlewares.forEach(function(one) {
-              callbacks.push(one);
-          });
+        middlewares.forEach(function(one) {
+          callbacks.push(one);
+        });
       }
 
       var gatewayApp = express();
@@ -80,18 +80,18 @@ module.exports = function() {
     }
 
     if (backendOptions) {
-        var backendApp = express();
-        var callbacks = [backendOptions.callback];
-        if (backendOptions.middleware) {
-          callbacks.unshift(backendOptions.middleware);
-        }
+      var backendApp = express();
+      var callbacks = [backendOptions.callback];
+      if (backendOptions.middleware) {
+        callbacks.unshift(backendOptions.middleware);
+      }
 
-        backendApp.all('/*', callbacks);
+      backendApp.all('/*', callbacks);
 
-        backendApp.listen(0, function() {
-          backendPort = this.address().port;
-          startGateway();
-        });
+      backendApp.listen(0, function() {
+        backendPort = this.address().port;
+        startGateway();
+      });
     }
     else {
       startGateway();
