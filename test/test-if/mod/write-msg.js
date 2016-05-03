@@ -1,39 +1,48 @@
-// Copyright IBM Corp. 2016. All Rights Reserved.
-// Node module: flow-engine
-// US Government Users Restricted Rights - Use, duplication or disclosure
-// restricted by GSA ADP Schedule Contract with IBM Corp.
+//Copyright IBM Corp. 2016. All Rights Reserved.
+//Node module: flow-engine
+//US Government Users Restricted Rights - Use, duplication or disclosure
+//restricted by GSA ADP Schedule Contract with IBM Corp.
 
+/*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-    return function (props, context, flow) {
-        var logger = flow.logger;
+  return function(props, context, flow) {
+    var logger = flow.logger;
 
-        var statusCode = props.statusCode;
-        var statusMsg = props.statusMsg;
-        var body = props.body;
-        var headers = props.headers;
+    var statusCode = props.statusCode;
+    var statusMsg = props.statusMsg;
+    var body = props.body;
+    var headers = props.headers;
 
-        if (!context.message)
-            context.message = {};
+    if (!context.message) {
+      context.message = {};
+    }
 
-        if (statusCode)
-            context.message.statusCode = statusCode;
-        if (statusMsg)
-            context.message.statusMessage = statusMsg;
-        if (body)
-            context.message.body = body;
-        if (headers)
-            context.message.headers = headers;
+    if (statusCode) {
+      context.message.statusCode = statusCode;
+    }
 
-        //got Code without Msg, then we'll give a default value
-        if (!statusMsg && statusCode) {
-            context.message.statusMessage =
-                (statusCode === 200 ? 'OK' : 'No Reason');
-        }
+    if (statusMsg) {
+      context.message.statusMessage = statusMsg;
+    }
 
-        logger.debug('[write-msg] code=%d body=%s', statusCode, body);
-        flow.proceed();
-    };
+    if (body) {
+      context.message.body = body;
+    }
+
+    if (headers) {
+      context.message.headers = headers;
+    }
+
+    //got Code without Msg, then we'll give a default value
+    if (!statusMsg && statusCode) {
+      context.message.statusMessage =
+        (statusCode === 200 ? 'OK' : 'No Reason');
+    }
+
+    logger.debug('[write-msg] code=%d body=%s', statusCode, body);
+    flow.proceed();
+  };
 };

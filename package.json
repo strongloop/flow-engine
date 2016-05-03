@@ -4,7 +4,7 @@
   "description": "A flow engine that is used to execute a series of tasks/policies",
   "main": "index.js",
   "scripts": {
-    "pretest": "jshint .",
+    "pretest": "eslint .",
     "test": "mocha"
   },
   "repository": {
@@ -28,9 +28,9 @@
     "yamljs": "^0.2.4"
   },
   "devDependencies": {
+    "eslint": "^2.8.0",
     "express": "^4.13.0",
     "http-auth": "^2.2.8",
-    "jshint": "^2.8.0",
     "mocha": "^2.2.5",
     "should": "^8.0.0",
     "supertest": "^1.0.1"
