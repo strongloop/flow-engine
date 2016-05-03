@@ -6,9 +6,9 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props,context, flow) {
+  return function(props, context, flow) {
     var logger = flow.logger;
     logger.debug('execute subscribe task');
 
@@ -23,7 +23,7 @@ module.exports = function (config) {
     };
 
     var events = props.event.split(',');
-    events.forEach(function (event) {
+    events.forEach(function(event) {
       flow.subscribe(event, eh);
     });
     flow.proceed();

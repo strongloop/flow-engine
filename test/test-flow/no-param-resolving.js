@@ -5,8 +5,8 @@
 
 'use strict';
 
-module.exports = function (config) {
-  var rev = function (props, context, flow) {
+module.exports = function(config) {
+  var rev = function(props, context, flow) {
     var logger = flow.logger;
     logger.debug('ENTER no-param-resolving policy');
 

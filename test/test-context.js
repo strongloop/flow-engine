@@ -6,7 +6,7 @@
 /*eslint-env node, mocha*/
 'use strict';
 var createContext = require('../index.js').createContext;
-var should        = require('should');
+var should = require('should');
 
 describe('context module', function() {
   describe('createContext', function() {
@@ -118,7 +118,7 @@ describe('context module', function() {
       ctx.fool.should.exactly('bar').and.be.a.String();
       should(ctx.get('fool')).exactly('bar').and.be.a.String();
       should(ctx).have.propertyWithDescriptor(
-          'fool', {writable:false, configurable:false});
+          'fool', { writable: false, configurable: false });
       should.throws(function() {
         ctx.set('fool', 'test');
       });
@@ -136,7 +136,7 @@ describe('context module', function() {
       ctx.fool.should.exactly(obj).and.be.a.Object();
       should(ctx.get('fool')).exactly(obj).and.be.a.Object();
       should(ctx).have.propertyWithDescriptor(
-          'fool', {writable:false, configurable:false});
+          'fool', { writable: false, configurable: false });
       should.throws(function() {
         ctx.set('fool', 'test');
       });
@@ -163,7 +163,7 @@ describe('context module', function() {
       ctx.define('fool', function() {
         return 'fool';
       }, false);
-      should.throws( function () {
+      should.throws(function() {
         ctx.define('fool', function() {
           return 'later';
         });
@@ -171,10 +171,10 @@ describe('context module', function() {
       ctx.define('fool2', function() {
         return 'fool2';
       },
-      function (value) {
+      function(value) {
       },
       false);
-      should.throws( function () {
+      should.throws(function() {
         ctx.define('fool2', function() {
           return 'later';
         });
@@ -193,7 +193,7 @@ describe('context module', function() {
       ctx.define('fool2', function() {
         return 'fool2';
       },
-      function (value) {
+      function(value) {
       });
       ctx.define('fool2', function() {
         return 'later2';
@@ -212,7 +212,7 @@ describe('context module', function() {
       ctx.define('fool4', function() {
         return 'fool4';
       },
-      function (value) {
+      function(value) {
       }, true);
       ctx.define('fool4', function() {
         return 'later4';
@@ -225,7 +225,7 @@ describe('context module', function() {
       ctx.define('myval', function() {
         return myval;
       },
-      function (value) {
+      function(value) {
         myval = 'xx' + value;
       });
 
@@ -239,7 +239,7 @@ describe('context module', function() {
         return 'value';
       });
       ctx.fool.should.exactly('value').and.be.a.String();
-      should.throws(function () {
+      should.throws(function() {
         ctx.fool = 'new-value';
       });
     });
@@ -273,12 +273,12 @@ describe('context module', function() {
 
       ctx.subscribe('post-process', function(event, next) {
         ctx.set('post-process2', 'done');
-        next({code:400});
+        next({ code: 400 });
       });
 
       ctx.subscribe('post-process', function(event, next) {
         ctx.set('post-process3', 'done');
-        next({code:500});
+        next({ code: 500 });
       });
 
       ctx.notify('post-process', function(errors) {

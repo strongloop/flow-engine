@@ -6,15 +6,15 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props, context, flow) {
+  return function(props, context, flow) {
     var subflow = props.subFlow;
     var logger = flow.logger;
     logger.debug('execute addSubFlow task');
     logger.debug('addSubFlow:', JSON.stringify(subflow));
 
-    flow.invoke({ execute:subflow.execute}, function() {
+    flow.invoke({ execute: subflow.execute }, function() {
       logger.debug('addSubFlow finished');
       flow.proceed();
     });

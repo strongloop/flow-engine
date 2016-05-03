@@ -6,11 +6,12 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props, context, flow) {
-    if (!context.message)
+  return function(props, context, flow) {
+    if (!context.message) {
       context.message = {};
+    }
 
     context.message.statusCode = 200;
     context.message.body =

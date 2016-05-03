@@ -6,10 +6,10 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props, context, flow) {
-    var subflow = { 'execute': props.execute };
+  return function(props, context, flow) {
+    var subflow = { execute: props.execute };
     var logger = flow.logger;
     logger.debug('[call] calling "%s" now', props.name);
 

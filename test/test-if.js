@@ -6,6 +6,7 @@
 /*eslint-env node, mocha*/
 'use strict';
 var startGateway = require('./util/start-gateway.js');
+var assert = require('assert');
 
 describe('ifPolicyTestingVerb', function() {
 
@@ -33,23 +34,24 @@ function whenFlowSucceeds(req, res, next) {
 
 //To return a 500 response with the context.error in the body
 function whenFlowFails(err, req, res, next) {
-  res.writeHead(500, {'Content-Type': 'text/json'});
+  assert(err);
+  res.writeHead(500, { 'Content-Type': 'text/json' });
   res.end(JSON.stringify(req.context.error));
   next();
 }
 
 //the middlewares running after the flow.
-var middlewares = [whenFlowSucceeds, whenFlowFails];
+var middlewares = [ whenFlowSucceeds, whenFlowFails ];
 
 
 function ifPolicyTestingVerbPOST(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-if/ifPolicyTestingVerb.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'write-msg': 'test-if/mod/write-msg.js'}};
+    flow: 'test/test-if/ifPolicyTestingVerb.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -63,11 +65,11 @@ function ifPolicyTestingVerbPOST(doneCB) {
 function ifPolicyTestingVerbGET(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-if/ifPolicyTestingVerb.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'write-msg': 'test-if/mod/write-msg.js'}};
+    flow: 'test/test-if/ifPolicyTestingVerb.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -81,11 +83,11 @@ function ifPolicyTestingVerbGET(doneCB) {
 function ifPolicyTestingVerbDELETE(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-if/ifPolicyTestingVerb.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'write-msg': 'test-if/mod/write-msg.js'}};
+    flow: 'test/test-if/ifPolicyTestingVerb.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -99,11 +101,11 @@ function ifPolicyTestingVerbDELETE(doneCB) {
 function ifPolicyTestingVerbHEAD(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-if/ifPolicyTestingVerb.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'write-msg': 'test-if/mod/write-msg.js'}};
+    flow: 'test/test-if/ifPolicyTestingVerb.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -117,13 +119,13 @@ function ifPolicyTestingVerbHEAD(doneCB) {
 function ifPolicySyntaxError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-if/ifPolicyError.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'write-msg': 'test-if/mod/write-msg.js',
-        'write-err': 'test-if/mod/write-err.js',
-      }};
+    flow: 'test/test-if/ifPolicyError.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'write-msg': 'test-if/mod/write-msg.js',
+      'write-err': 'test-if/mod/write-err.js',
+    } };
 
   //send a request and test the response
   function testRequest() {
@@ -140,13 +142,13 @@ function ifPolicySyntaxError(doneCB) {
 function ifPolicyReferenceError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-if/ifPolicyError.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'write-msg': 'test-if/mod/write-msg.js',
-        'write-err': 'test-if/mod/write-err.js',
-      }};
+    flow: 'test/test-if/ifPolicyError.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'write-msg': 'test-if/mod/write-msg.js',
+      'write-err': 'test-if/mod/write-err.js',
+    } };
 
   //send a request and test the response
   function testRequest() {

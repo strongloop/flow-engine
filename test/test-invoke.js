@@ -7,6 +7,7 @@
 'use strict';
 var startGateway = require('./util/start-gateway.js');
 var auth = require('http-auth');
+var assert = require('assert');
 
 describe('invokePolicy', function() {
 
@@ -34,13 +35,14 @@ function whenFlowSucceeds(req, res, next) {
 
 //To return a 500 response with the context.error in the body
 function whenFlowFails(err, req, res, next) {
-  res.writeHead(500, {'Content-Type': 'text/json'});
+  assert(err);
+  res.writeHead(500, { 'Content-Type': 'text/json' });
   res.end(JSON.stringify(req.context.error));
   next();
 }
 
 //the middlewares running after the flow.
-var middlewares = [whenFlowSucceeds, whenFlowFails];
+var middlewares = [ whenFlowSucceeds, whenFlowFails ];
 
 //act as back server
 function backendServer(req, res) {
@@ -67,9 +69,9 @@ function backendServerProtected(req, res) {
 function invokePolicyReverseProxyPOST(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-invoke/invokeReverseProxy.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname
+    flow: 'test/test-invoke/invokeReverseProxy.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
   };
 
   //send a request and test the response
@@ -86,9 +88,9 @@ function invokePolicyReverseProxyPOST(doneCB) {
 function invokePolicyReverseProxyGET(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-invoke/invokeReverseProxy.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname
+    flow: 'test/test-invoke/invokeReverseProxy.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
   };
 
   //send a request and test the response
@@ -108,9 +110,9 @@ function invokePolicyTimeout(doneCB) {
   this.timeout(5000);
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-invoke/invokeTimeout.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname
+    flow: 'test/test-invoke/invokeTimeout.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
   };
 
   //send a request and test the response
@@ -128,9 +130,9 @@ function invokePolicyTimeout(doneCB) {
 function invokePolicyBadPort(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-invoke/invokeBadPort.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname
+    flow: 'test/test-invoke/invokeBadPort.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
   };
 
   //send a request and test the response
@@ -146,9 +148,9 @@ function invokePolicyBadPort(doneCB) {
 function invokePolicyBasicAuthOK(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-invoke/invokeBasicAuth.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname
+    flow: 'test/test-invoke/invokeBasicAuth.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
   };
 
   //send a request and test the response
@@ -166,9 +168,9 @@ function invokePolicyBasicAuthOK(doneCB) {
 function invokePolicyBasicAuthNG(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-invoke/invokeBasicAuth.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname
+    flow: 'test/test-invoke/invokeBasicAuth.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
   };
 
   //send a request and test the response

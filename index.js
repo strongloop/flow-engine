@@ -5,15 +5,15 @@
 
 /*eslint-env node */
 'use strict';
-var fs         = require('fs');
-var path       = require('path');
-var yaml       = require('yamljs');
-var flow       = require('./lib/flow');
-var context    = require('./lib/context');
+var fs = require('fs');
+var path = require('path');
+var yaml = require('yamljs');
+var flow = require('./lib/flow');
+var context = require('./lib/context');
 
 //This is for global level logging and only used in creating
 //a flow-engine middleware
-var logger     = require('./lib/flow')._gLogger;
+var logger = require('./lib/flow')._gLogger;
 
 //The middleware ctor function. The configuration is setup via the options.
 
@@ -93,9 +93,9 @@ module.exports = function(options) {
 
       //start to run the flow engine
       var flowObj = new flow.Flow(config, {
-        'paramResolver' : paramResolver,
-        'baseDir' : options.baseDir,
-        'tasks' : tasks,
+        paramResolver: paramResolver,
+        baseDir: options.baseDir,
+        tasks: tasks,
       });
 
       //create the empty message on the context
@@ -111,7 +111,7 @@ module.exports = function(options) {
 function loadTasks(tasks, baseDir) {
   var rev = {};
   baseDir = baseDir || '';
-  for ( var name in tasks) {
+  for (var name in tasks) {
     try {
       logger.debug('Loading the custom policy "%s"', name);
       // TODO fix the issue of using '.' with path.join('.', 'someModule')

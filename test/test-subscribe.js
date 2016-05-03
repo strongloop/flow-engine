@@ -5,13 +5,14 @@
 
 /*eslint-env node, mocha*/
 'use strict';
-var startGateway  = require('./util/start-gateway.js');
-var path          = require('path');
-var express       = require('express');
-var supertest     = require('supertest');
-var yaml          = require('yamljs');
-var Flow          = require('../index.js').Flow;
+var startGateway = require('./util/start-gateway.js');
+var path = require('path');
+var express = require('express');
+var supertest = require('supertest');
+var yaml = require('yamljs');
+var Flow = require('../index.js').Flow;
 var createContext = require('../index.js').createContext;
+var assert = require('assert');
 
 //subscribe testcases:
 describe('flow.subscribe()', function() {
@@ -26,7 +27,7 @@ describe('flow.subscribe()', function() {
       it('next(error)',
           testSTARTEventThrowError);
     });
-  });    
+  });
 
 
   //verify the FINISH event
@@ -220,114 +221,114 @@ function outputMiddleware(req, resp, next) {
   var code = req.context.get('verify-me');
 
   //write the secret-code to the response body
-  resp.writeHead(200, {'Content-Type': 'text/plain'});
+  resp.writeHead(200, { 'Content-Type': 'text/plain' });
   resp.end(code ? code.toString() : 'undefined');
   next();
 }
 
 //The middlewares running after the flow. They write the 'verify-me' to response
 var middlewares = [
-                   outputMiddleware
-                   ];
+  outputMiddleware,
+];
 
 //The middlewares running after the flow. They write the 'verify-me' to response
 //note: this is an error handler middelware
 var middlewaresWithErrorHandler = [
-                                   function (error, req, resp, next) {
-                                     //the verify-me is added into the context by the subscribe-xxx task
-                                     var code = req.context.get('verify-me');
-
-                                     //write the secret-code to the response body
-                                     resp.writeHead(200, {'Content-Type': 'text/plain'});
-                                     resp.end(code ? code.toString() : 'undefined');
-                                     next();
-                                   }
-                                   ];
+  function(error, req, resp, next) {
+    //the verify-me is added into the context by the subscribe-xxx task
+    var code = req.context.get('verify-me');
+    assert(error);
+    //write the secret-code to the response body
+    resp.writeHead(200, { 'Content-Type': 'text/plain' });
+    resp.end(code ? code.toString() : 'undefined');
+    next();
+  },
+];
 
 //for START event, need to create flow-engine manually
 var customMiddlewares = [
-                         function (req, resp, next) {
-                           req.context = createContext();
-                           var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
-                           var paramResolver = require(path.join(__dirname ,
+  function(req, resp, next) {
+    req.context = createContext();
+    var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
+    var paramResolver = require(path.join(__dirname,
                            'util/apim-param-resolver.js'))();
-                           var tasks = {
-                               'mytask': require(__dirname + '/test-subscribe/mytask')({})
-                           };
+    var tasks = {
+      mytask: require(__dirname + '/test-subscribe/mytask')({}),
+    };
 
-                           var flow = new Flow(config, 
-                               { 'paramResolver': paramResolver,
-                             'context' : req.context,
-                             'tasks': tasks});
+    var flow = new Flow(config,
+        { paramResolver: paramResolver,
+          context: req.context,
+          tasks: tasks });
 
-                           flow.prepare(req.context, next);
-                           req.context.set('req', req, true);
-                           req.context.set('res', resp, true);
+    flow.prepare(req.context, next);
+    req.context.set('req', req, true);
+    req.context.set('res', resp, true);
 
-                           flow.subscribe('START', function(context, next) {
-                             req.context.set('verify-me', 'ok-start-1');
-                             next();
-                           });
-                           flow.run();
-                         },
-                         outputMiddleware
-                         ];
+    flow.subscribe('START', function(context, next) {
+      req.context.set('verify-me', 'ok-start-1');
+      next();
+    });
+    flow.run();
+  },
+  outputMiddleware,
+];
 
 var customMiddlewares2 = [
-                          function (req, resp, next) {
-                            req.context = createContext();
-                            var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
-                            var paramResolver = require(path.join(__dirname ,
+  function(req, resp, next) {
+    req.context = createContext();
+    var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
+    var paramResolver = require(path.join(__dirname,
                             'util/apim-param-resolver.js'))();
-                            var tasks = {
-                                'mytask': require(__dirname + '/test-subscribe/mytask')({})
-                            };
+    var tasks = {
+      mytask: require(__dirname + '/test-subscribe/mytask')({}),
+    };
 
-                            var flow = new Flow(config, 
-                                { 'paramResolver': paramResolver,
-                              'context' : req.context,
-                              'tasks': tasks});
+    var flow = new Flow(config,
+        { paramResolver: paramResolver,
+          context: req.context,
+          tasks: tasks });
 
-                            flow.prepare(req.context, next);
-                            req.context.set('req', req, true);
-                            req.context.set('res', resp, true);
+    flow.prepare(req.context, next);
+    req.context.set('req', req, true);
+    req.context.set('res', resp, true);
 
-                            flow.subscribe('START', function(context, next) {
-                              req.context.set('verify-me', 'ok-start-1');
-                              next(new Error('from START event'));
-                            });
-                            flow.run();        
-                          },
-                          outputMiddleware
-                          ];
+    flow.subscribe('START', function(context, next) {
+      req.context.set('verify-me', 'ok-start-1');
+      next(new Error('from START event'));
+    });
+    flow.run();
+  },
+  outputMiddleware,
+];
 
 var customMiddlewares3 = [
-                          function (req, resp, next) {
-                            req.context = createContext();
-                            var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
-                            var paramResolver = require(path.join(__dirname ,
+  function(req, resp, next) {
+    req.context = createContext();
+    var config = yaml.load('test/test-subscribe/subscribe-start.yaml');
+    var paramResolver = require(path.join(__dirname,
                             'util/apim-param-resolver.js'))();
-                            var tasks = {
-                                'mytask': require(__dirname + '/test-subscribe/mytask')({})
-                            };
+    var tasks = {
+      mytask: require(__dirname + '/test-subscribe/mytask')({}),
+    };
 
-                            var flow = new Flow(config, 
-                                { 'paramResolver': paramResolver,
-                              'context' : req.context,
-                              'tasks': tasks});
+    var flow = new Flow(config,
+        { paramResolver: paramResolver,
+          context: req.context,
+          tasks: tasks });
 
-                            flow.prepare(req.context, next);
-                            req.context.set('req', req, true);
-                            req.context.set('res', resp, true);
+    flow.prepare(req.context, next);
+    req.context.set('req', req, true);
+    req.context.set('res', resp, true);
 
-                            flow.subscribe('START', function(context, next) {
-                              req.context.set('verify-me', 'ok-start-1');
-                              throw new Error('from START event');
-                            });
-                            flow.run();        
-                          },
-                          outputMiddleware
-                          ];
+    flow.subscribe('START', function(context, next) {
+      req.context.set('verify-me', 'ok-start-1');
+      throw new Error('from START event');
+    });
+    flow.run();
+  },
+  outputMiddleware,
+];
 
 function startCustomGateway(options, done) {
   return function(next, middleware) {
@@ -345,11 +346,11 @@ function startCustomGateway(options, done) {
 function testSTARTEvent(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-start.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-start.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -363,11 +364,11 @@ function testSTARTEvent(doneCB) {
 function testSTARTEventNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-start.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-start.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -381,11 +382,11 @@ function testSTARTEventNextError(doneCB) {
 function testSTARTEventThrowError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-start.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-start.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -400,11 +401,11 @@ function testSTARTEventThrowError(doneCB) {
 function testFINISHEventNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-finish.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -418,11 +419,11 @@ function testFINISHEventNextError(doneCB) {
 function testFINISHEventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-finish2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -436,11 +437,11 @@ function testFINISHEventNext(doneCB) {
 function testFINISHEventThrowError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw'}};
+    flow: 'test/test-subscribe/subscribe-finish.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw' } };
 
   //send a request and test the response
   function testRequest() {
@@ -454,11 +455,11 @@ function testFINISHEventThrowError(doneCB) {
 function testMultipleFINISHEventNextErrors(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish-multiple.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-finish-multiple.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -472,11 +473,11 @@ function testMultipleFINISHEventNextErrors(doneCB) {
 function testMultipleFINISHEventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish-multiple2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-finish-multiple2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -490,11 +491,11 @@ function testMultipleFINISHEventNext(doneCB) {
 function testMultipleFINISHEventNextAndNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish-multiple3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-finish-multiple3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   //because next(error) first and next() later
@@ -510,11 +511,11 @@ function testMultipleFINISHEventNextAndNextError(doneCB) {
 function testMultipleFINISHEventNextAndNextError2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-finish-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   //because next() first and next(error) later
@@ -530,11 +531,11 @@ function testMultipleFINISHEventNextAndNextError2(doneCB) {
 function testMultipleFINISHEventThrow(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw-counter'}};
+    flow: 'test/test-subscribe/subscribe-finish-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -548,11 +549,11 @@ function testMultipleFINISHEventThrow(doneCB) {
 function testNoFINISHEvent(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish-but-throw.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-finish-but-throw.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -566,11 +567,11 @@ function testNoFINISHEvent(doneCB) {
 function test3FINISHEvents(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-finish-multiple5.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-finish-multiple5.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -586,11 +587,11 @@ function test3FINISHEvents(doneCB) {
 function testERROREventNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-error.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -604,11 +605,11 @@ function testERROREventNextError(doneCB) {
 function testERROREventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe'}};
+    flow: 'test/test-subscribe/subscribe-error2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe' } };
 
   //send a request and test the response
   function testRequest() {
@@ -622,11 +623,11 @@ function testERROREventNext(doneCB) {
 function testERROREventThrowError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw'}};
+    flow: 'test/test-subscribe/subscribe-error.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw' } };
 
   //send a request and test the response
   function testRequest() {
@@ -640,11 +641,11 @@ function testERROREventThrowError(doneCB) {
 function testMultipleERROREventNextErrors(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error-multiple.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-error-multiple.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -658,11 +659,11 @@ function testMultipleERROREventNextErrors(doneCB) {
 function testMultipleERROREventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error-multiple2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-error-multiple2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -676,11 +677,11 @@ function testMultipleERROREventNext(doneCB) {
 function testMultipleERROREventNextAndNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error-multiple3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-error-multiple3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   //because next(error) first and next() later
@@ -696,11 +697,11 @@ function testMultipleERROREventNextAndNextError(doneCB) {
 function testMultipleERROREventNextAndNextError2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-error-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   //because next() first and next(error) later
@@ -716,11 +717,11 @@ function testMultipleERROREventNextAndNextError2(doneCB) {
 function testMultipleERROREventThrow(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw-counter'}};
+    flow: 'test/test-subscribe/subscribe-error-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -734,11 +735,11 @@ function testMultipleERROREventThrow(doneCB) {
 function testNoERROREvent(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error-no-throw.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw-counter'}};
+    flow: 'test/test-subscribe/subscribe-error-no-throw.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -752,11 +753,11 @@ function testNoERROREvent(doneCB) {
 function test3ERROREvents(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-error-multiple5.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter'}};
+    flow: 'test/test-subscribe/subscribe-error-multiple5.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter' } };
 
   //send a request and test the response
   function testRequest() {
@@ -772,12 +773,12 @@ function test3ERROREvents(doneCB) {
 function testPreEventNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -791,12 +792,12 @@ function testPreEventNextError(doneCB) {
 function testPreEventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -810,12 +811,12 @@ function testPreEventNext(doneCB) {
 function testPreEventThrowError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -829,12 +830,12 @@ function testPreEventThrowError(doneCB) {
 function testMultiplePreEventNextErrors(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre-multiple.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre-multiple.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -848,12 +849,12 @@ function testMultiplePreEventNextErrors(doneCB) {
 function testMultiplePreEventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre-multiple2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre-multiple2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -867,12 +868,12 @@ function testMultiplePreEventNext(doneCB) {
 function testMultiplePreEventNextAndNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre-multiple3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre-multiple3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   //because next(error) first and next() later
@@ -888,12 +889,12 @@ function testMultiplePreEventNextAndNextError(doneCB) {
 function testMultiplePreEventNextAndNextError2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   //because next() first and next(error) later
@@ -909,12 +910,12 @@ function testMultiplePreEventNextAndNextError2(doneCB) {
 function testMultiplePreEventThrow(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -928,12 +929,12 @@ function testMultiplePreEventThrow(doneCB) {
 function testNoPreEvent(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-pre-but-no-pre.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-pre-but-no-pre.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -948,12 +949,12 @@ function testNoPreEvent(doneCB) {
 function testPostEventNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -967,12 +968,12 @@ function testPostEventNextError(doneCB) {
 function testPostEventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -986,12 +987,12 @@ function testPostEventNext(doneCB) {
 function testPostEventThrowError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1005,12 +1006,12 @@ function testPostEventThrowError(doneCB) {
 function testMultiplePostEventNextErrors(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post-multiple.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post-multiple.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1024,12 +1025,12 @@ function testMultiplePostEventNextErrors(doneCB) {
 function testMultiplePostEventNext(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post-multiple2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post-multiple2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1043,12 +1044,12 @@ function testMultiplePostEventNext(doneCB) {
 function testMultiplePostEventNextAndNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post-multiple3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post-multiple3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   //because next(error) first and next() later
@@ -1064,12 +1065,12 @@ function testMultiplePostEventNextAndNextError(doneCB) {
 function testMultiplePostEventNextAndNextError2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   //because next() first and next(error) later
@@ -1085,12 +1086,12 @@ function testMultiplePostEventNextAndNextError2(doneCB) {
 function testMultiplePostEventThrow(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post-multiple4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-throw-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post-multiple4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-throw-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1104,12 +1105,12 @@ function testMultiplePostEventThrow(doneCB) {
 function testNoPostEvent(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-post-but-no-post.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-post-but-no-post.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1124,12 +1125,12 @@ function testNoPostEvent(doneCB) {
 function testFINISHPrePostEventsNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-multiple-events.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-multiple-events.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1143,12 +1144,12 @@ function testFINISHPrePostEventsNextError(doneCB) {
 function test2FINISHPrePostEventsNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-multiple-events2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-multiple-events2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1163,12 +1164,12 @@ function test2FINISHPrePostEventsNextError(doneCB) {
 function testSameEventsNextError(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-multiple-events3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-multiple-events3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1183,12 +1184,12 @@ function testSameEventsNextError(doneCB) {
 function testUnsupportedEvents(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/subscribe-multiple-events4.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subscribe': 'test-subscribe/subscribe-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/subscribe-multiple-events4.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subscribe: 'test-subscribe/subscribe-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1204,12 +1205,12 @@ function testUnsupportedEvents(doneCB) {
 function testSub2Unsub1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/unsubscribe.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subunsub' : 'test-subscribe/subunsub-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/unsubscribe.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subunsub: 'test-subscribe/subunsub-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1224,12 +1225,12 @@ function testSub2Unsub1(doneCB) {
 function testSub2UnsubTwice(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/unsubscribe2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subunsub' : 'test-subscribe/subunsub-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/unsubscribe2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subunsub: 'test-subscribe/subunsub-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1244,12 +1245,12 @@ function testSub2UnsubTwice(doneCB) {
 function testSub2UnsubMore(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/unsubscribe3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subunsub' : 'test-subscribe/subunsub-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/unsubscribe3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subunsub: 'test-subscribe/subunsub-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1264,12 +1265,12 @@ function testSub2UnsubMore(doneCB) {
 function testMultipleSub2Unsub1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/unsubscribe-multiple.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subunsub' : 'test-subscribe/subunsub-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/unsubscribe-multiple.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subunsub: 'test-subscribe/subunsub-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1284,12 +1285,12 @@ function testMultipleSub2Unsub1(doneCB) {
 function testMultipleSub2UnsubTwice(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/unsubscribe-multiple2.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subunsub' : 'test-subscribe/subunsub-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/unsubscribe-multiple2.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subunsub: 'test-subscribe/subunsub-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {
@@ -1304,12 +1305,12 @@ function testMultipleSub2UnsubTwice(doneCB) {
 function testMultipleSub2UnsubMore(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-subscribe/unsubscribe3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'subunsub' : 'test-subscribe/subunsub-counter',
-        'mytask'   : 'test-subscribe/mytask'}};
+    flow: 'test/test-subscribe/unsubscribe3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      subunsub: 'test-subscribe/subunsub-counter',
+      mytask: 'test-subscribe/mytask' } };
 
   //send a request and test the response
   function testRequest() {

@@ -6,6 +6,7 @@
 /*eslint-env node, mocha*/
 'use strict';
 var startGateway = require('./util/start-gateway.js');
+var assert = require('assert');
 
 describe('switchPolicyTesting', function() {
   //first switch (match default)
@@ -33,25 +34,26 @@ function whenFlowSucceeds(req, res, next) {
 
 //To return a 500 response with the context.error in the body
 function whenFlowFails(err, req, res, next) {
-  res.writeHead(500, {'Content-Type': 'text/json'});
+  assert(err);
+  res.writeHead(500, { 'Content-Type': 'text/json' });
   res.end(JSON.stringify(req.context.error));
   next();
 }
 
 //the middlewares running after the flow.
-var middlewares = [whenFlowSucceeds, whenFlowFails];
+var middlewares = [ whenFlowSucceeds, whenFlowFails ];
 
 
 function switchPolicyMatchDefault(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'add-msg': 'test-switch/mod/add-msg.js',
-        'write-err': 'test-switch/mod/write-err.js',
-      }};
+    flow: 'test/test-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'add-msg': 'test-switch/mod/add-msg.js',
+      'write-err': 'test-switch/mod/write-err.js',
+    } };
 
   //send a request and test the response
   function testRequest() {
@@ -69,13 +71,13 @@ function switchPolicyMatchDefault(doneCB) {
 function switchPolicyMatchMatch(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'add-msg': 'test-switch/mod/add-msg.js',
-        'write-err': 'test-switch/mod/write-err.js',
-      }};
+    flow: 'test/test-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'add-msg': 'test-switch/mod/add-msg.js',
+      'write-err': 'test-switch/mod/write-err.js',
+    } };
 
   //send a request and test the response
   function testRequest() {
@@ -94,13 +96,13 @@ function switchPolicyMatchMatch(doneCB) {
 function switchPolicyMatchNoDefault(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'add-msg': 'test-switch/mod/add-msg.js',
-        'write-err': 'test-switch/mod/write-err.js',
-      }};
+    flow: 'test/test-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      'add-msg': 'test-switch/mod/add-msg.js',
+      'write-err': 'test-switch/mod/write-err.js',
+    } };
 
   //send a request and test the response
   function testRequest() {

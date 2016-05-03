@@ -5,6 +5,8 @@
 
 /*eslint-env node, mocha*/
 'use strict';
+
+var assert = require('assert');
 var startGateway = require('./util/start-gateway.js');
 
 //subflow testcases:
@@ -97,32 +99,31 @@ function saveReq(req) {
 
 //To return a 200 response
 function whenFlowSucceeds(req, res, next) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end(req.context.get('Body'));
   next();
 }
 
 //To return a 500 response with the context.error in the body
 function whenFlowFails(err, req, res, next) {
-  res.writeHead(500, {'Content-Type': 'text/json'});
+  assert(err);
+  res.writeHead(500, { 'Content-Type': 'text/json' });
   res.end(JSON.stringify(req.context.error));
   next();
 }
 
 //the middlewares running after the flow.
-var middlewares = [whenFlowSucceeds, whenFlowFails];
-
-
+var middlewares = [ whenFlowSucceeds, whenFlowFails ];
 
 function testTwoConsecutiveCallPolicies(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testTwoConsecutiveCallPolicies.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testTwoConsecutiveCallPolicies.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -137,12 +138,12 @@ function testTwoConsecutiveCallPolicies(doneCB) {
 function testNestedCallPolicies(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testNestedCallPolicies.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testNestedCallPolicies.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -157,12 +158,12 @@ function testNestedCallPolicies(doneCB) {
 function testMainErrorRecoveredByLEH1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -178,12 +179,12 @@ function testMainErrorRecoveredByLEH1(doneCB) {
 function testMainErrorRecoveredByLEH2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testMainErrorRecoveredByLEH.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -199,12 +200,12 @@ function testMainErrorRecoveredByLEH2(doneCB) {
 function testMainErrorRecoveredByGEH(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testMainErrorRecoveredByGEH.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testMainErrorRecoveredByGEH.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -220,12 +221,12 @@ function testMainErrorRecoveredByGEH(doneCB) {
 function testSubflowErrorRecoveredByPolicy(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   var expect =
@@ -243,12 +244,12 @@ function testSubflowErrorRecoveredByPolicy(doneCB) {
 function testSubflowErrorRecoveredByParent(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -266,12 +267,12 @@ function testSubflowErrorRecoveredByParent(doneCB) {
 function testSubflowErrorRecoveredByGEH(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -287,12 +288,12 @@ function testSubflowErrorRecoveredByGEH(doneCB) {
 function testSubflowTwoErrorsHandled1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -311,12 +312,12 @@ function testSubflowTwoErrorsHandled1(doneCB) {
 function testSubflowTwoErrorsHandled2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   var expect =
@@ -335,12 +336,12 @@ function testSubflowTwoErrorsHandled2(doneCB) {
 function testSubflowTwoErrorsHandled3(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   var expect =
@@ -359,12 +360,12 @@ function testSubflowTwoErrorsHandled3(doneCB) {
 function testSubflowTwoErrorsHandled4(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   var expect =
@@ -382,12 +383,12 @@ function testSubflowTwoErrorsHandled4(doneCB) {
 function testSubflowTwoErrorsHandledByGEH1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -406,12 +407,12 @@ function testSubflowTwoErrorsHandledByGEH1(doneCB) {
 function testSubflowTwoErrorsHandledByGEH2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -430,12 +431,12 @@ function testSubflowTwoErrorsHandledByGEH2(doneCB) {
 function testRecoverTheSubflowErrorInGEH(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testSubflowErrorRecover.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testSubflowErrorRecover.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   var expect =
@@ -454,12 +455,12 @@ function testRecoverTheSubflowErrorInGEH(doneCB) {
 function testUncaughtErrorInMain(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testUncaughtError.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testUncaughtError.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -476,12 +477,12 @@ function testUncaughtErrorInMain(doneCB) {
 function testUncauthtErrorInLEH(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testUncaughtError.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testUncaughtError.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -498,12 +499,12 @@ function testUncauthtErrorInLEH(doneCB) {
 function testUncauthtErrorInGEH(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testUncaughtError.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testUncaughtError.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -520,12 +521,12 @@ function testUncauthtErrorInGEH(doneCB) {
 function testUncaughtErrorInSubflow1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testUncaughtError.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testUncaughtError.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -541,12 +542,12 @@ function testUncaughtErrorInSubflow1(doneCB) {
 function testUncaughtErrorInSubflow2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testUncaughtError.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testUncaughtError.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -563,12 +564,12 @@ function testUncaughtErrorInSubflow2(doneCB) {
 function testUncaughtErrorInSubflow3(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testUncaughtErrorInSubflow3.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testUncaughtErrorInSubflow3.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -583,12 +584,12 @@ function testUncaughtErrorInSubflow3(doneCB) {
 function testReThrowErrorInHandler(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testReThrowErrorInHandler.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testReThrowErrorInHandler.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -604,13 +605,13 @@ function testReThrowErrorInHandler(doneCB) {
 function testFlowErrorHandler(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testErrorInErrorHandler.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'run-flow': 'test-error/mod/run-flow.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testErrorInErrorHandler.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'run-flow': 'test-error/mod/run-flow.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   var expect = '|MT1|SF1T3|SF2T5|LH2DdT11|SF1T4|dynamic-subflow-S1(resumed)|MT2';
@@ -627,13 +628,13 @@ function testFlowErrorHandler(doneCB) {
 function testErrorInFlowErrorHandler(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testErrorInErrorHandler.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'run-flow': 'test-error/mod/run-flow.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testErrorInErrorHandler.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'run-flow': 'test-error/mod/run-flow.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -649,13 +650,13 @@ function testErrorInFlowErrorHandler(doneCB) {
 function testErrorInPolicyErrorHandler(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testErrorInErrorHandler.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
-        'call': 'test-error/mod/call.js',
-        'run-flow': 'test-error/mod/run-flow.js',
-        'append-code': 'test-error/mod/append-code.js'}};
+    flow: 'test/test-error/testErrorInErrorHandler.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
+      call: 'test-error/mod/call.js',
+      'run-flow': 'test-error/mod/run-flow.js',
+      'append-code': 'test-error/mod/append-code.js' } };
 
   //send a request and test the response
   var expect = '|MT1|SF1T3|SF2T5|LH2DabcT9|LH1DT7|LH0D|MT2';
@@ -670,29 +671,30 @@ function testErrorInPolicyErrorHandler(doneCB) {
 }
 
 var basicMiddlewares = [
-function (req, res, next) {
-  var msg = req.context.message;
-  if (msg) {
-    res.writeHead(msg.statusCode, msg.headers);
-    res.end(msg.body);
-  }
-  next();
-},
-function (err, req, res, next) {
-  res.writeHead(500, {'Content-Type': 'text/json'});
-  res.end(JSON.stringify(req.context.error));
-  next();
-}];
+  function(req, res, next) {
+    var msg = req.context.message;
+    if (msg) {
+      res.writeHead(msg.statusCode, msg.headers);
+      res.end(msg.body);
+    }
+    next();
+  },
+  function(err, req, res, next) {
+    assert(err);
+    res.writeHead(500, { 'Content-Type': 'text/json' });
+    res.end(JSON.stringify(req.context.error));
+    next();
+  } ];
 
 function testBasic1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testBasic.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-error/testBasic.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -708,12 +710,12 @@ function testBasic1(doneCB) {
 function testBasic2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testBasic.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-error/testBasic.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -729,12 +731,12 @@ function testBasic2(doneCB) {
 function testBasic3(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-error/testBasic.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-error/testBasic.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {

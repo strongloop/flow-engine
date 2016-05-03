@@ -6,9 +6,9 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props, context, flow) {
+  return function(props, context, flow) {
     var subflow = props.subFlow;
     var logger = flow.logger;
     logger.debug('execute addSubFlow task');

@@ -6,9 +6,9 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props, context, flow) {
+  return function(props, context, flow) {
     var logger = flow.logger;
 
     var statusCode = props.statusCode;
@@ -16,17 +16,25 @@ module.exports = function (config) {
     var body = props.body;
     var headers = props.headers;
 
-    if (!context.message)
+    if (!context.message) {
       context.message = {};
+    }
 
-    if (statusCode)
+    if (statusCode) {
       context.message.statusCode = statusCode;
-    if (statusMsg)
+    }
+
+    if (statusMsg) {
       context.message.statusMessage = statusMsg;
-    if (body)
+    }
+
+    if (body) {
       context.message.body = body;
-    if (headers)
+    }
+
+    if (headers) {
       context.message.headers = headers;
+    }
 
     //got Code without Msg, then we'll give a default value
     if (!statusMsg && statusCode) {

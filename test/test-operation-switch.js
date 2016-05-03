@@ -5,6 +5,7 @@
 
 'use strict';
 var startGateway = require('./util/start-gateway.js');
+var assert = require('assert');
 
 describe('switchPolicyTesting', function() {
 
@@ -33,23 +34,24 @@ function whenFlowSucceeds(req, res, next) {
 
 //To return a 500 response with the context.error in the body
 function whenFlowFails(err, req, res, next) {
-  res.writeHead(500, {'Content-Type': 'text/json'});
+  assert(err);
+  res.writeHead(500, { 'Content-Type': 'text/json' });
   res.end(JSON.stringify(req.context.error));
   next();
 }
 
 //the middlewares running after the flow.
-var middlewares = [whenFlowSucceeds, whenFlowFails];
+var middlewares = [ whenFlowSucceeds, whenFlowFails ];
 
 function switchOnVerbAndPath(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -64,12 +66,12 @@ function switchOnVerbAndPath(doneCB) {
 function switchOnOperationId1(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -85,12 +87,12 @@ function switchOnOperationId1(doneCB) {
 function switchOnOperationId2(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -106,12 +108,12 @@ function switchOnOperationId2(doneCB) {
 function switchOnOperationId3(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {
@@ -128,12 +130,12 @@ function switchOnOperationId3(doneCB) {
 function switchNoCase(doneCB) {
   //the gateway options
   var flowOptions = {
-      flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
-      paramResolver: 'util/apim-param-resolver.js',
-      baseDir: __dirname,
-      tasks: {
+    flow: 'test/test-operation-switch/switchPolicyTesting.yaml',
+    paramResolver: 'util/apim-param-resolver.js',
+    baseDir: __dirname,
+    tasks: {
         //reuse the module in the 'test-if/' directory
-        'write-msg': 'test-if/mod/write-msg.js'}};
+      'write-msg': 'test-if/mod/write-msg.js' } };
 
   //send a request and test the response
   function testRequest() {

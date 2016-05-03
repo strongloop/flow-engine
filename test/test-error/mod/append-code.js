@@ -6,16 +6,16 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props, context, flow) {
+  return function(props, context, flow) {
     var label = props.label;
     var code = props.code;
     var logger = flow.logger;
     logger.debug('[append-code] label=%s code=%s', label, code);
 
-    var origin = context.get(label);
-    code = (origin ? origin : '') + '|' + code;
+    var origin = context.get(label) || '';
+    code = origin + '|' + code;
     context.set(label, code);
     flow.proceed();
   };

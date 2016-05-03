@@ -6,9 +6,9 @@
 /*eslint-env node */
 'use strict';
 
-module.exports = function (config) {
+module.exports = function(config) {
 
-  return function (props, context, flow) {
+  return function(props, context, flow) {
     var code = props.code;
     var logger = flow.logger;
     logger.debug('execute set-response-code task');
