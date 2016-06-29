@@ -7,4 +7,4 @@ assembly:
     - invoke:
         target-url: "http://localhost:9999/$(request.path)"
         verb: $(request.verb)
-        timeout: 1
+        timeout: 10
