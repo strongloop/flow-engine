@@ -99,7 +99,7 @@ To use the FlowEngine, one must `require('flow-engine')`.
     - logLevel: flow-engine uses it to create its own logger if `logger` is not
        there.
 
-- `Flow.prototype.parepare(context, next)`:  
+- `Flow.prototype.prepare(context, next)`:  
    Pass the `context` object and `next` function to the flow instance that you
    create by the Flow ctor
 
