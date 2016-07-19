@@ -1,3 +1,29 @@
+2016-07-19, Version 1.1.0
+=========================
+
+ * increment version (Jon Palgon)
+
+ * Correct eslint failures (Jon Palgon)
+
+ * fix lint error (Thomas Burke)
+
+ * fix version meta retrieval (Thomas Burke)
+
+ * Add test of Flow public method existence (P. Thorpe)
+
+ * Fix typo to method name in readme (P. Thorpe)
+
+ * Increase invokeBadPort timeout Fixes #62 (P. Thorpe)
+
+ * work around error handler issue (Thomas Burke)
+
+ * add logic to handle task version (Thomas Burke)
+
+ * Revert "Increment package version." (Krishna Raman)
+
+ * Increment package version. (Rick Curtis)
+
+
 2016-05-05, Version 1.0.3
 =========================
 
