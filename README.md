@@ -57,12 +57,12 @@ to build customized ones. Putting the customized tasks to the `lib/task`
 directory, and flow-engine can pick up the new tasks without additional
 configuration.
 
-# flow-engine and IBM apiconnect-microgateway
+# flow-engine and IBM microgateway
 The flow-engine is designed to be the heart of a gateway or reverse proxy.
-It is included and used as part of the apiconnect-microgateway module that
+It is included and used as part of the microgateway module that
 serves as API policies enforcement point.
 
-Each API policy on the apiconnect-microgateway is implemented as a flow-engine
+Each API policy on the microgateway is implemented as a flow-engine
 task. And what and when API policies need to be enforced is describe as the
 assembly flow to be executed by the flow-engine.
 
