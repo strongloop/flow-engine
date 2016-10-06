@@ -1,3 +1,11 @@
+2016-10-06, Version 1.1.1
+=========================
+
+ * change name to flow-engine (Clement)
+
+ * change module name to 'microgateway' (Clement)
+
+
 2016-07-19, Version 1.1.0
 =========================
 
