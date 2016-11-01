@@ -1,7 +1,6 @@
-//Copyright IBM Corp. 2016. All Rights Reserved.
-//Node module: flow-engine
-//US Government Users Restricted Rights - Use, duplication or disclosure
-//restricted by GSA ADP Schedule Contract with IBM Corp.
+// Copyright (c) IBM Corp. 2016. All Rights Reserved.
+// Node module: flow-engine
+// This project is licensed under the MIT License, see LICENSE.txt
 
 /*eslint-env node */
 'use strict';
