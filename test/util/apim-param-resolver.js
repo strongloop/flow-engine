@@ -1,7 +1,7 @@
-//Copyright IBM Corp. 2015,2016. All Rights Reserved.
-//Node module: flow-engine
-//US Government Users Restricted Rights - Use, duplication or disclosure
-//restricted by GSA ADP Schedule Contract with IBM Corp.
+// © Copyright IBM Corporation 2015,2017.
+// Node module: flow-engine
+// LICENSE: Apache 2.0, https://www.apache.org/licenses/LICENSE-2.0
+
 
 /*eslint-env node */
 module.exports = function() {
