@@ -1,4 +1,18 @@
-2016-10-14, Version 1.1.2
+2017-03-09, Version 1.1.3
+=========================
+
+ * add QA to MAINTAINERS.txt (Clement)
+
+ * add/update docs for open source (Clement)
+
+ * correct info in package.json (Clement)
+
+ * modify copyright for open source (Clement)
+
+ * Stick http-auth to v2.4 for Node v0.12 runtime (Gary Tu)
+
+
+2016-10-13, Version 1.1.2
 =========================
 
  * Enforce node level (Daniel Badt)
