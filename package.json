@@ -24,7 +24,7 @@
     "flowengine"
   ],
   "author": "IBM",
-  "license": "SEE LICENSE IN LICENSE.txt",
+  "license": "Apache-2.0",
   "dependencies": {
     "async": "^1.5.2",
     "bunyan": "^1.7.0",
