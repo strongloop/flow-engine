@@ -1,3 +1,13 @@
+2018-06-12, Version 1.2.0
+=========================
+
+ * changing package.json version (ivy ho)
+
+ * drop node 4 (ivy ho)
+
+ * replace ibm-apiconnect with strongloop (Clement)
+
+
 2017-03-09, Version 1.1.3
 =========================
 
